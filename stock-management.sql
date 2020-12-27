@@ -15,6 +15,10 @@ CREATE TABLE IF NOT EXISTS suppliers (
     birth_date DATE
 );
 
+/*
+    TODO = personel maaşı ve personel ünvanı tabloları eklenebilir
+*/
+
 CREATE TABLE IF NOT EXISTS personels (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     first_name VARCHAR(50) NOT NULL,
