@@ -1,13 +1,20 @@
 import { Pool } from 'pg';
+import {
+    POSTGRES_USER,
+    POSTGRES_PASSWORD,
+    POSTGRES_HOST,
+    POSTGRES_PORT,
+    POSTGRES_DB,
+} from '.';
 
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'stock_management',
-    password: 'postgres',
-    port: 5432,
+    user: POSTGRES_USER,
+    host: POSTGRES_HOST,
+    database: POSTGRES_DB,
+    password: POSTGRES_PASSWORD,
+    port: parseInt(POSTGRES_PORT, 10),
 });
 
-console.log('Connected to db');
+console.log('🐒 Connected to db');
 
 export { pool };

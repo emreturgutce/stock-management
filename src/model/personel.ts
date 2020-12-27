@@ -13,3 +13,7 @@ export const ADD_PERSONEL_QUERY = `
 export const GET_PERSONELS_QUERY = `
     SELECT * FROM personels;
 `;
+
+export const GET_PERSONEL_BY_EMAIL = `
+    SELECT * FROM personels WHERE email = $1 LIMIT 1;
+`;

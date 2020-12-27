@@ -1,13 +1,21 @@
 import express from 'express';
+import { PORT } from './config';
+import { createSession } from './config/session';
 import { indexRouter } from './controller';
+import { errorHandler } from './middleware/error-handler';
+import { notFound } from './middleware/not-found';
 
 const app = express();
 
 app.use(express.json());
 app.disable('x-powered-by');
+app.use(createSession());
 
 app.use('/api', indexRouter);
 
-app.listen(8080, () => {
+app.use(notFound);
+app.use(errorHandler);
+
+app.listen(PORT, () => {
     console.log('App is running on port 8080');
 });
