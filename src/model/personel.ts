@@ -17,3 +17,7 @@ export const GET_PERSONELS_QUERY = `
 export const GET_PERSONEL_BY_EMAIL = `
     SELECT * FROM personels WHERE email = $1 LIMIT 1;
 `;
+
+export const GET_PERSONEL_BY_ID = `
+    SELECT * FROM personels WHERE id = $1 LIMIT 1;
+`;

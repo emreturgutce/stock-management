@@ -5,10 +5,12 @@ import { createSession } from './config/session';
 import { indexRouter } from './controller';
 import { errorHandler } from './middleware/error-handler';
 import { notFound } from './middleware/not-found';
+import { corsOptions } from './config/cors-options';
 
 const app = express();
 
-app.use(cors());
+app.set('trust proxy', 1);
+app.use(cors(corsOptions));
 app.use(express.json());
 app.disable('x-powered-by');
 app.use(createSession());

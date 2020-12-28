@@ -1,6 +1,6 @@
 import session from 'express-session';
 import connectRedis from 'connect-redis';
-import { NODE_ENV, redis, SESSION_SECRET } from '.';
+import { redis, SESSION_SECRET } from '.';
 import { COOKIE_EXPIRATION, COOKIE_NAME } from '../constants';
 
 const RedisStore = connectRedis(session);
@@ -15,8 +15,8 @@ export const createSession = () =>
         resave: false,
         saveUninitialized: false,
         cookie: {
+            secure: false,
             httpOnly: false,
-            secure: NODE_ENV === 'production',
             maxAge: COOKIE_EXPIRATION,
         },
     });
