@@ -14,10 +14,8 @@ const router = Router();
 router.get('/invoices', async (req, res) => {
     try {
         const data = await pool.query(GET_INVOICES_QUERY);
-        console.log(data);
         res.json({ data: data.rows });
     } catch (err) {
-        console.log(err);
         res.json({ error: err });
     }
 });

@@ -58,7 +58,6 @@ router.get('/', auth, async (req, res) => {
 });
 
 router.get('/current', auth, async (req, res) => {
-    console.log(req.session);
     try {
         const data = await pool.query(GET_PERSONEL_BY_ID, [
             jwt.decode((req.session as any).userId),
