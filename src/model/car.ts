@@ -28,7 +28,7 @@ export const ADD_CAR_QUERY = `
     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *;
 `;
 export const GET_CARS_QUERY = `
-    SELECT *, cars.description AS car_description, car_colors.name AS car_color, car_manufacturers.name AS car_brand
+    SELECT *, cars.id AS car_id, cars.description AS car_description, car_colors.name AS car_color, car_manufacturers.name AS car_brand
     FROM cars 
     JOIN car_colors 
     ON car_colors.id = cars.car_color_code
@@ -38,4 +38,9 @@ export const GET_CARS_QUERY = `
 export const GET_CAR_BY_ID_QUERY = `
     SELECT * FROM cars WHERE id = $1
 `;
-export const EDIT_CAR_QUERY = ``;
+export const MARK_CAR_AS_SOLD_QUERY = `
+    UPDATE cars SET is_sold = 'SOLD' WHERE id = $1;
+`;
+export const DELETE_CAR_BY_ID = `
+    DELETE FROM cars WHERE id = $1;
+`;

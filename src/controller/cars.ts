@@ -4,6 +4,7 @@ import {
     ADD_CAR_COLOR_QUERY,
     ADD_CAR_MANUFACTURER_QUERY,
     ADD_CAR_QUERY,
+    DELETE_CAR_BY_ID,
     GET_CARS_QUERY,
     GET_CAR_BY_ID_QUERY,
     GET_CAR_COLORS_QUERY,
@@ -11,65 +12,6 @@ import {
 } from '../model/car';
 
 const router = Router();
-
-router.post('/', async (req, res) => {
-    const {
-        title,
-        sale_price,
-        purchase_price,
-        is_sold,
-        description,
-        model,
-        year,
-        is_new,
-        enter_date,
-        supplier_id,
-        personel_id,
-        car_manufacturer_id,
-        car_color_code,
-    } = req.body;
-
-    try {
-        const { rows } = await pool.query(ADD_CAR_QUERY, [
-            title,
-            sale_price,
-            purchase_price,
-            is_sold,
-            description,
-            model,
-            year,
-            is_new,
-            enter_date,
-            supplier_id,
-            personel_id,
-            car_manufacturer_id,
-            car_color_code,
-        ]);
-        res.json({ message: 'car added', data: rows });
-    } catch (err) {
-        res.json({ err });
-    }
-});
-
-router.get('/', async (req, res) => {
-    try {
-        const { rows } = await pool.query(GET_CARS_QUERY);
-        res.json({ data: rows });
-    } catch (err) {
-        res.status(500).json({ error: err });
-    }
-});
-
-router.get('/:id', async (req, res) => {
-    let data;
-
-    try {
-        data = await pool.query(GET_CAR_BY_ID_QUERY, [req.params.id]);
-    } catch (err) {
-        return res.status(500).json({ error: err });
-    }
-    res.json({ data });
-});
 
 router.post('/colors', async (req, res) => {
     try {
@@ -116,6 +58,77 @@ router.get('/manufacturers', async (req, res) => {
         const { rows } = await pool.query(GET_CAR_MANUFACTURER_QUERY);
 
         res.json({ data: rows });
+    } catch (err) {
+        res.status(500).json({ error: err });
+    }
+});
+
+router.post('/', async (req, res) => {
+    const {
+        title,
+        sale_price,
+        purchase_price,
+        is_sold,
+        description,
+        model,
+        year,
+        is_new,
+        enter_date,
+        supplier_id,
+        personel_id,
+        car_manufacturer_id,
+        car_color_code,
+    } = req.body;
+
+    try {
+        const { rows } = await pool.query(ADD_CAR_QUERY, [
+            title,
+            sale_price,
+            purchase_price,
+            is_sold,
+            description,
+            model,
+            year,
+            is_new,
+            enter_date,
+            supplier_id,
+            personel_id,
+            car_manufacturer_id,
+            car_color_code,
+        ]);
+        res.status(201).json({ message: 'car added', data: rows });
+    } catch (err) {
+        console.log(err);
+        res.status(400).json({ err });
+    }
+});
+
+router.get('/', async (req, res) => {
+    try {
+        const { rows } = await pool.query(GET_CARS_QUERY);
+        res.json({ data: rows });
+    } catch (err) {
+        res.status(500).json({ error: err });
+    }
+});
+
+router.get('/:id', async (req, res) => {
+    let data;
+
+    try {
+        data = await pool.query(GET_CAR_BY_ID_QUERY, [req.params.id]);
+    } catch (err) {
+        return res.status(500).json({ error: err });
+    }
+    res.json({ data });
+});
+
+router.delete('/:id', async (req, res) => {
+    let data;
+
+    try {
+        data = await pool.query(DELETE_CAR_BY_ID, [req.params.id]);
+        res.json({ data });
     } catch (err) {
         res.status(500).json({ error: err });
     }

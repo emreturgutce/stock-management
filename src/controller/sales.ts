@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { pool } from '../config/database';
+import { MARK_CAR_AS_SOLD_QUERY } from '../model/car';
 import {
     ADD_INVOICE_QUERY,
     ADD_SALE_QUERY,
@@ -82,6 +83,7 @@ router.post('/', async (req, res) => {
             invoice_id,
             sale_date,
         ]);
+        await pool.query(MARK_CAR_AS_SOLD_QUERY, [car_id]);
         res.json({ message: 'sale added', data: rows });
     } catch (err) {
         res.json({ error: err });
