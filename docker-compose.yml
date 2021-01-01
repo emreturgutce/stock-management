@@ -1,0 +1,30 @@
+version: "3.8"
+services:
+  app:
+    build:
+      context: .
+      target: dev
+    restart: on-failure
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/app
+    env_file: .env.docker
+  postgres:
+    image: postgres
+    restart: on-failure
+    volumes:
+      - ./stock-management.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=stock_management
+    expose:
+      - 5432
+  redis:
+    image: redis
+    restart: on-failure
+    expose:
+      - 6379

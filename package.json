@@ -6,7 +6,9 @@
     "author": "emreturgutce <emrebursalee@gmail.com>",
     "license": "MIT",
     "scripts": {
-        "start": "ts-node-dev src/index.ts"
+        "start": "cross-env NODE_ENV=production node dist/index.js",
+        "dev": "ts-node-dev --poll --respawn --transpile-only src/index.ts",
+        "build": "tsc"
     },
     "devDependencies": {
         "@types/bcryptjs": "^2.4.2",
@@ -17,6 +19,7 @@
         "@types/express-session": "^1.17.3",
         "@types/jsonwebtoken": "^8.5.0",
         "@types/pg": "^7.14.7",
+        "cross-env": "^7.0.3",
         "ts-node-dev": "^1.1.1",
         "typescript": "^4.1.3"
     },

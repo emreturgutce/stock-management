@@ -15,6 +15,6 @@ const pool = new Pool({
     port: parseInt(POSTGRES_PORT, 10),
 });
 
-console.log('🐒 Connected to db');
+console.log('🐘 Connected to db');
 
 export { pool };
