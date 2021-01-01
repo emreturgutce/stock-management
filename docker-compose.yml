@@ -17,12 +17,12 @@ services:
     image: postgres
     restart: on-failure
     volumes:
-      - ./stock-management.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./stock-management.sql:/docker-entrypoint-initdb.d/init.db
+      - ./init.sh:/docker-entrypoint-initdb.d/init.sh
     environment:
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=stock_management
-    expose:
-      - 5432
+    ports:
+      - 5432:5432
   redis:
     image: redis
     restart: on-failure
