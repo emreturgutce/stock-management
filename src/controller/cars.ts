@@ -34,9 +34,9 @@ router.post('/colors', async (req, res, next) => {
 });
 
 router.get('/colors', async (req, res) => {
-    const data = await pool.query(GET_CAR_COLORS_QUERY);
+    const { rows } = await pool.query(GET_CAR_COLORS_QUERY);
 
-    res.json({ message: 'Car colors fetched', status: 200, data });
+    res.json({ message: 'Car colors fetched', status: 200, data: rows });
 });
 
 router.post('/manufacturers', async (req, res, next) => {

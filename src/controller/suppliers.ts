@@ -33,7 +33,7 @@ router.post('/', async (req, res, next) => {
 });
 
 router.get('/', async (req, res) => {
-    const rows = await pool.query(GET_SUPPLIERS_QUERY);
+    const { rows } = await pool.query(GET_SUPPLIERS_QUERY);
 
     res.json({
         message: 'Suppliers fetched',

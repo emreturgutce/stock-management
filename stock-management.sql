@@ -13,10 +13,6 @@ CREATE TABLE IF NOT EXISTS suppliers (
     birth_date DATE
 );
 
-/*
-    TODO = personel maaşı ve personel ünvanı tabloları eklenebilir
-*/
-
 CREATE TABLE IF NOT EXISTS personels (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     first_name VARCHAR(50) NOT NULL,
@@ -38,8 +34,7 @@ CREATE TABLE IF NOT EXISTS car_manufacturers (
 
 CREATE TABLE IF NOT EXISTS car_colors (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name VARCHAR(100) NOT NULL UNIQUE,
-    description TEXT
+    name VARCHAR(100) NOT NULL UNIQUE
 );
 
 CREATE TYPE is_new_enum AS ENUM ('NEW', 'NOT NEW');
@@ -50,11 +45,11 @@ CREATE TABLE IF NOT EXISTS cars (
     title VARCHAR(100) NOT NULL UNIQUE,
     sale_price DECIMAL NOT NULL,
     purchase_price DECIMAL NOT NULL,
-    is_sold is_sold_enum NOT NULL,
+    is_sold is_sold_enum NOT NULL DEFAULT 'NOT SOLD',
     description TEXT,
     model VARCHAR(50) NOT NULL,
     year INT NOT NULL,
-    is_new is_new_enum NOT NULL,
+    is_new is_new_enum NOT NULL DEFAULT 'NEW',
     enter_date DATE NOT NULL,
     supplier_id UUID NOT NULL,
     personel_id UUID NOT NULL,
@@ -104,3 +99,83 @@ ALTER TABLE sales ADD CONSTRAINT sales_customers FOREIGN KEY (customer_id) REFER
 ALTER TABLE sales ADD CONSTRAINT sales_personels FOREIGN KEY (personel_id) REFERENCES personels(id) ON DELETE CASCADE;
 ALTER TABLE sales ADD CONSTRAINT sales_cars FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE;
 ALTER TABLE sales ADD CONSTRAINT sales_invoices FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE;
+
+/*
+    Renkleri ekle
+*/
+INSERT INTO car_colors (name) VALUES ('Bej');
+INSERT INTO car_colors (name) VALUES ('Beyaz');
+INSERT INTO car_colors (name) VALUES ('Bordo');
+INSERT INTO car_colors (name) VALUES ('Füme');
+INSERT INTO car_colors (name) VALUES ('Gri');
+INSERT INTO car_colors (name) VALUES ('Gümüş Gri');
+INSERT INTO car_colors (name) VALUES ('Kırmızı');
+INSERT INTO car_colors (name) VALUES ('Mor');
+INSERT INTO car_colors (name) VALUES ('Lacivert');
+INSERT INTO car_colors (name) VALUES ('Mavi');
+INSERT INTO car_colors (name) VALUES ('Pembe');
+INSERT INTO car_colors (name) VALUES ('Sarı');
+INSERT INTO car_colors (name) VALUES ('Siyah');
+INSERT INTO car_colors (name) VALUES ('Şampanya');
+INSERT INTO car_colors (name) VALUES ('Turkuaz');
+INSERT INTO car_colors (name) VALUES ('Turuncu');
+INSERT INTO car_colors (name) VALUES ('Yeşil');
+
+/* Üretici Ekle */
+INSERT INTO car_manufacturers (name) VALUES ('Volkswagen');
+INSERT INTO car_manufacturers (name) VALUES ('Maruti Suzuki');
+INSERT INTO car_manufacturers (name) VALUES ('Tesla');
+INSERT INTO car_manufacturers (name) VALUES ('AUDİ');
+INSERT INTO car_manufacturers (name) VALUES ('Nissan');
+INSERT INTO car_manufacturers (name) VALUES ('Honda');
+INSERT INTO car_manufacturers (name) VALUES ('Ford');
+INSERT INTO car_manufacturers (name) VALUES ('BMW');
+INSERT INTO car_manufacturers (name) VALUES ('Mercedes Benz');
+INSERT INTO car_manufacturers (name) VALUES ('Toyota');
+
+/* Tedarikçi Ekle */
+INSERT INTO suppliers (first_name, last_name) VALUES  ('Delal Abdullatif', 'Abzak');
+INSERT INTO suppliers (first_name, last_name) VALUES  ('Fatma Özlem', 'Acar');
+INSERT INTO suppliers (first_name, last_name) VALUES  ('Özde', 'Acarkan');
+INSERT INTO suppliers (first_name, last_name) VALUES  ('Atahan', 'Adanır');
+INSERT INTO suppliers (first_name, last_name) VALUES  ('Hacı Mehmet', 'Adıgüzel');
+INSERT INTO suppliers (first_name, last_name) VALUES  ('Mükerrem Zeynep', 'Ağca');
+INSERT INTO suppliers (first_name, last_name) VALUES  ('Bestami', 'Ağırağaç');
+INSERT INTO suppliers (first_name, last_name) VALUES  ('Aykanat', 'Ağıroğlu');
+INSERT INTO suppliers (first_name, last_name) VALUES  ('Şennur', 'Ağnar');
+INSERT INTO suppliers (first_name, last_name) VALUES  ('Tutkum', 'Ahmadı Asl');
+
+/* Personel Ekle */
+INSERT INTO personels (first_name, last_name, birth_date, email, password, gender, hire_date)
+VALUES ('Cihan', 'Akarpınar', '2000-06-23', 'cihan@akpınar.com', '123456', 'MALE', '2021-01-01');
+
+/* Araba Ekle */
+INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
+supplier_id, personel_id, car_manufacturer_id, car_color_code)
+VALUES ('2020 Toyota Yaris Yeni 1.5 Dream e-CVT', 299200, 270000, 
+'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the 
+industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and 
+scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap 
+into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the 
+release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing 
+software like Aldus PageMaker including versions of Lorem Ipsum.', 'Yaris',
+2020, '2021-01-01', 
+(SELECT id AS supplier_id FROM suppliers LIMIT 1), 
+(SELECT id AS personel_id FROM personels LIMIT 1), 
+(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'Toyota'), 
+(SELECT id AS car_color_code FROM car_colors WHERE name = 'Beyaz'));
+
+INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
+supplier_id, personel_id, car_manufacturer_id, car_color_code)
+VALUES ('2020 BMW 1 Serisi 1.5 116d', 414200, 400000, 
+'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the 
+industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and 
+scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap 
+into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the 
+release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing 
+software like Aldus PageMaker including versions of Lorem Ipsum.', '1 Serisi',
+2020, '2021-01-01', 
+(SELECT id AS supplier_id FROM suppliers LIMIT 1), 
+(SELECT id AS personel_id FROM personels LIMIT 1), 
+(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'BMW'), 
+(SELECT id AS car_color_code FROM car_colors WHERE name = 'Mavi'));

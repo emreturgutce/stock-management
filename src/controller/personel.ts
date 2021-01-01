@@ -45,7 +45,7 @@ router.get('/logout', auth, async (req, res) => {
 
         res.clearCookie(COOKIE_NAME);
 
-        res.status(204);
+        res.status(204).send();
     });
 });
 
