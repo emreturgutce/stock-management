@@ -46,6 +46,18 @@ if (!process.env.POSTGRES_DB) {
     throw new Error('POSTGRES_DB must be defined');
 }
 
+if (!process.env.AWS_ACCESS_KEY_ID) {
+    throw new Error('AWS_ACCESS_KEY_ID must be defined');
+}
+
+if (!process.env.AWS_SECRET_ACCESS_KEY) {
+    throw new Error('AWS_SECRET_ACCESS_KEY must be defined');
+}
+
+if (!process.env.AWS_S3_BUCKET) {
+    throw new Error('AWS_S3_BUCKET must be defined');
+}
+
 export const {
     NODE_ENV,
     SESSION_SECRET,
@@ -58,5 +70,8 @@ export const {
     POSTGRES_HOST,
     POSTGRES_PORT,
     POSTGRES_DB,
+    AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY,
+    AWS_S3_BUCKET,
 } = process.env;
 export { redis } from './redis';
