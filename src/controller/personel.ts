@@ -11,68 +11,67 @@ import {
 import { JWT_SECRET } from '../config';
 import { auth } from '../middleware/auth';
 import { COOKIE_NAME } from '../constants';
+import createHttpError from 'http-errors';
 
 const router = Router();
 
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res, next) => {
     try {
         const { email, password } = req.body;
         const { rows } = await pool.query(GET_PERSONEL_BY_EMAIL, [email]);
         const isAuth = await bcrypt.compare(password, rows[0].password);
+
         if (!isAuth) {
-            throw new Error('not authenticated');
+            return next(
+                new createHttpError.BadRequest('Invalid credentials to login'),
+            );
         }
+
         const token = jwt.sign(rows[0].id, JWT_SECRET);
         // @ts-ignore
         req.session!.userId = token;
-        res.json({ data: { ...rows, token } });
+
+        res.json({ data: rows, message: 'Logged in', status: 200 });
     } catch (err) {
-        res.status(400).json({ error: 'Invalid Credentials' });
+        next(new createHttpError.BadRequest('Invalid credentials to login'));
     }
 });
 
 router.get('/logout', auth, async (req, res) => {
     return new Promise((resolve, reject) => {
         req.session.destroy((err: any) => {
-            if (err) res.json({ message: 'could not logged out', error: err });
+            if (err) res.json({ message: 'Could not logged out', error: err });
         });
+
         res.clearCookie(COOKIE_NAME);
-        res.json({ message: 'logged out' });
+
+        res.status(204);
     });
 });
 
 router.get('/', auth, async (req, res) => {
-    let data;
-
-    try {
-        data = await pool.query(GET_PERSONELS_QUERY);
-    } catch (err) {
-        return res.json({
-            error: err,
-        });
-    }
+    const { rows } = await pool.query(GET_PERSONELS_QUERY);
 
     res.json({
-        data: data.rows,
+        message: 'Personels fetched',
+        status: 200,
+        data: rows,
     });
 });
 
-router.get('/current', auth, async (req, res) => {
-    try {
-        const data = await pool.query(GET_PERSONEL_BY_ID, [
-            jwt.decode((req.session as any).userId),
-        ]);
-        res.json({
-            data: data.rows,
-        });
-    } catch (err) {
-        res.json({
-            error: err,
-        });
-    }
+router.get('/current', auth, async (req, res, next) => {
+    const { rows } = await pool.query(GET_PERSONEL_BY_ID, [
+        jwt.decode((req.session as any).userId),
+    ]);
+
+    res.json({
+        message: 'Personel fetched with the given id',
+        status: 200,
+        data: rows,
+    });
 });
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
     try {
         const {
             first_name,
@@ -96,15 +95,17 @@ router.post('/', async (req, res) => {
             hire_date,
         ]);
 
-        res.json({
-            message: 'personel added successfully',
+        res.status(201).json({
+            message: 'New Personel created',
+            status: 201,
             data: rows,
         });
     } catch (err) {
-        res.status(400).json({
-            message: 'an error ocurred adding personel',
-            error: err,
-        });
+        next(
+            new createHttpError.BadRequest(
+                'Invalid values to create a personel.',
+            ),
+        );
     }
 });
 

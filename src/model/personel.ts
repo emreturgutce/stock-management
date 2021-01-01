@@ -21,3 +21,6 @@ export const GET_PERSONEL_BY_EMAIL = `
 export const GET_PERSONEL_BY_ID = `
     SELECT * FROM personels WHERE id = $1 LIMIT 1;
 `;
+export const CHECK_IF_PERSONEL_EXISTS_WITH_THE_ID = `
+    SELECT 1 FROM personels WHERE id = $1;
+`;

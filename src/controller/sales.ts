@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import createHttpError, { NotExtended } from 'http-errors';
 import { pool } from '../config/database';
 import { MARK_CAR_AS_SOLD_QUERY } from '../model/car';
 import {
@@ -13,12 +14,9 @@ import {
 const router = Router();
 
 router.get('/invoices', async (req, res) => {
-    try {
-        const data = await pool.query(GET_INVOICES_QUERY);
-        res.json({ data: data.rows });
-    } catch (err) {
-        res.json({ error: err });
-    }
+    const { rows } = await pool.query(GET_INVOICES_QUERY);
+
+    res.json({ message: 'Invoices fetched', status: 200, data: rows });
 });
 
 router.post('/invoices', async (req, res) => {
@@ -29,53 +27,65 @@ router.post('/invoices', async (req, res) => {
             serial_number,
             price,
         ]);
-        res.json({ message: 'invoice added', data: rows });
+        res.status(201).json({
+            message: 'New invoice created',
+            status: 201,
+            data: rows,
+        });
     } catch (err) {
         res.json({ error: err });
     }
 });
 
-router.get('/invoices/:id', async (req, res) => {
-    try {
-        const { rows } = await pool.query(GET_INVOICE_BY_ID_QUERY, [
-            req.params.id,
-        ]);
-        res.json({ data: rows });
-    } catch (err) {
-        res.json({ error: err });
+router.get('/invoices/:id', async (req, res, next) => {
+    const { id } = req.params;
+    const { rows } = await pool.query(GET_INVOICE_BY_ID_QUERY, [id]);
+
+    if (rows.length === 0) {
+        return next(
+            new createHttpError.NotFound('Invoice not found with the given id'),
+        );
     }
+
+    res.json({
+        message: 'Invoice fetched with the given id',
+        status: 200,
+        data: rows,
+    });
 });
 
 router.get('/', async (req, res) => {
-    try {
-        const { rows } = await pool.query(GET_SALES_QUERY);
-        res.json({ data: rows });
-    } catch (err) {
-        res.json({ error: err });
-    }
+    const { rows } = await pool.query(GET_SALES_QUERY);
+
+    res.json({ message: 'Sales fetched', status: 200, data: rows });
 });
 
-router.get('/:id', async (req, res) => {
-    try {
-        const { rows } = await pool.query(GET_SALE_BY_ID_QUERY, [
-            req.params.id,
-        ]);
-        res.json({ data: rows });
-    } catch (err) {
-        res.json({ error: err });
+router.get('/:id', async (req, res, next) => {
+    const { rows } = await pool.query(GET_SALE_BY_ID_QUERY, [req.params.id]);
+
+    if (rows.length === 0) {
+        return next(
+            new createHttpError.NotFound('Sale not found with the given id'),
+        );
     }
+
+    res.json({
+        message: 'Sale fetched with the given id',
+        status: 200,
+        data: rows,
+    });
 });
 
-router.post('/', async (req, res) => {
-    const {
-        customer_id,
-        personel_id,
-        car_id,
-        invoice_id,
-        sale_date,
-    } = req.body;
-
+router.post('/', async (req, res, next) => {
     try {
+        const {
+            customer_id,
+            personel_id,
+            car_id,
+            invoice_id,
+            sale_date,
+        } = req.body;
+
         const { rows } = await pool.query(ADD_SALE_QUERY, [
             customer_id,
             personel_id,
@@ -83,10 +93,16 @@ router.post('/', async (req, res) => {
             invoice_id,
             sale_date,
         ]);
+
         await pool.query(MARK_CAR_AS_SOLD_QUERY, [car_id]);
-        res.json({ message: 'sale added', data: rows });
+
+        res.status(201).json({
+            message: 'New sale created',
+            status: 201,
+            data: rows,
+        });
     } catch (err) {
-        res.json({ error: err });
+        next(new createHttpError.BadRequest('Invalid values to create a sale'));
     }
 });
 

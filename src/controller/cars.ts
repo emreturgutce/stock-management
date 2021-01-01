@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import createHttpError from 'http-errors';
 import { pool } from '../config/database';
 import {
     ADD_CAR_COLOR_QUERY,
@@ -13,74 +14,76 @@ import {
 
 const router = Router();
 
-router.post('/colors', async (req, res) => {
+router.post('/colors', async (req, res, next) => {
     try {
         const { name } = req.body;
         const { rows } = await pool.query(ADD_CAR_COLOR_QUERY, [
             name.toUpperCase(),
         ]);
 
-        res.json({ message: 'car color added', data: rows });
+        res.status(201).json({
+            message: 'New car color added',
+            status: 201,
+            data: rows,
+        });
     } catch (err) {
-        res.status(400).json({ message: 'could not add car color' });
+        next(
+            new createHttpError.BadRequest('Invalid values to create a color.'),
+        );
     }
 });
 
 router.get('/colors', async (req, res) => {
-    let data;
+    const data = await pool.query(GET_CAR_COLORS_QUERY);
 
-    try {
-        data = await pool.query(GET_CAR_COLORS_QUERY);
-    } catch (err) {
-        return res.status(500).json({ error: err });
-    }
-    res.json({ data });
+    res.json({ message: 'Car colors fetched', status: 200, data });
 });
 
-router.post('/manufacturers', async (req, res) => {
+router.post('/manufacturers', async (req, res, next) => {
     try {
         const { name } = req.body;
         const { rows } = await pool.query(ADD_CAR_MANUFACTURER_QUERY, [
             name.toUpperCase(),
         ]);
 
-        res.json({ message: 'car manifacturer added', data: rows });
-    } catch (err) {
-        res.status(400).json({
-            message: 'could not add car manifacturer',
-            err,
+        res.status(201).json({
+            message: 'New car manifacturer added',
+            status: 201,
+            data: rows,
         });
+    } catch (err) {
+        next(
+            new createHttpError.BadRequest(
+                'Invalid values to create a manufacturer.',
+            ),
+        );
     }
 });
 
 router.get('/manufacturers', async (req, res) => {
-    try {
-        const { rows } = await pool.query(GET_CAR_MANUFACTURER_QUERY);
+    const { rows } = await pool.query(GET_CAR_MANUFACTURER_QUERY);
 
-        res.json({ data: rows });
-    } catch (err) {
-        res.status(500).json({ error: err });
-    }
+    res.json({ message: 'Car manufacturers fetched', status: 200, data: rows });
 });
 
-router.post('/', async (req, res) => {
-    const {
-        title,
-        sale_price,
-        purchase_price,
-        is_sold,
-        description,
-        model,
-        year,
-        is_new,
-        enter_date,
-        supplier_id,
-        personel_id,
-        car_manufacturer_id,
-        car_color_code,
-    } = req.body;
-
+router.post('/', async (req, res, next) => {
     try {
+        const {
+            title,
+            sale_price,
+            purchase_price,
+            is_sold,
+            description,
+            model,
+            year,
+            is_new,
+            enter_date,
+            supplier_id,
+            personel_id,
+            car_manufacturer_id,
+            car_color_code,
+        } = req.body;
+
         const { rows } = await pool.query(ADD_CAR_QUERY, [
             title,
             sale_price,
@@ -96,42 +99,60 @@ router.post('/', async (req, res) => {
             car_manufacturer_id,
             car_color_code,
         ]);
-        res.status(201).json({ message: 'car added', data: rows });
+
+        res.status(201).json({
+            message: 'New car created',
+            status: 201,
+            data: rows,
+        });
     } catch (err) {
-        console.log(err);
-        res.status(400).json({ err });
+        next(
+            new createHttpError.BadRequest(
+                'Invalid credentials to create a car.',
+            ),
+        );
     }
 });
 
 router.get('/', async (req, res) => {
-    try {
-        const { rows } = await pool.query(GET_CARS_QUERY);
-        res.json({ data: rows });
-    } catch (err) {
-        res.status(500).json({ error: err });
-    }
+    const { rows } = await pool.query(GET_CARS_QUERY);
+
+    res.json({ message: 'Cars fetched', status: 200, data: rows });
 });
 
-router.get('/:id', async (req, res) => {
-    let data;
+router.get('/:id', async (req, res, next) => {
+    const { id } = req.params;
+    const { rows } = await pool.query(GET_CAR_BY_ID_QUERY, [id]);
 
-    try {
-        data = await pool.query(GET_CAR_BY_ID_QUERY, [req.params.id]);
-    } catch (err) {
-        return res.status(500).json({ error: err });
+    if (rows.length === 0) {
+        return next(
+            new createHttpError.NotFound(`Car not found with the id of ${id}`),
+        );
     }
-    res.json({ data });
+
+    res.json({
+        message: 'Car fetched with the given id.',
+        status: 200,
+        data: rows,
+    });
 });
 
-router.delete('/:id', async (req, res) => {
-    let data;
+router.delete('/:id', async (req, res, next) => {
+    const { id } = req.params;
 
-    try {
-        data = await pool.query(DELETE_CAR_BY_ID, [req.params.id]);
-        res.json({ data });
-    } catch (err) {
-        res.status(500).json({ error: err });
+    const { rows } = await pool.query(DELETE_CAR_BY_ID, [id]);
+
+    if (rows.length === 0) {
+        return next(
+            new createHttpError.NotFound(`Car not found with the id of ${id}`),
+        );
     }
+
+    res.json({
+        message: 'Car deleted with the given id.',
+        status: 200,
+        data: rows,
+    });
 });
 
 export { router as carRouter };

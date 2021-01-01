@@ -1,12 +1,10 @@
-DROP DATABASE stock_management;
-
 CREATE DATABASE stock_management WITH template=template0 owner=postgres;
 
 \connect stock_management;
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TYPE gender_enum AS ENUM ('male', 'female');
+CREATE TYPE gender_enum AS ENUM ('MALE', 'FEMALE');
 
 CREATE TABLE IF NOT EXISTS suppliers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
