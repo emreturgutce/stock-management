@@ -7,6 +7,7 @@ export const errorHandler = (
     response: Response,
     next: NextFunction,
 ) => {
+    console.log(error);
     if (error instanceof HttpError) {
         return response
             .status(error.statusCode)

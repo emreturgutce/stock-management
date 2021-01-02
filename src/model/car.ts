@@ -35,6 +35,16 @@ export const GET_CARS_QUERY = `
     JOIN car_manufacturers
     ON car_manufacturers.id = cars.car_manufacturer_id;
 `;
+export const GET_CARS_QUERY_NEW = `
+    SELECT *, cars.id AS car_id, cars.description AS car_description, car_colors.name AS car_color, car_manufacturers.name AS car_brand
+    FROM cars
+        LEFT JOIN (SELECT car_id, MIN(image_url) AS image_url FROM car_images GROUP BY car_id) AS car_images
+        ON car_images.car_id = cars.id
+        JOIN car_colors
+        ON car_colors.id = cars.car_color_code
+            JOIN car_manufacturers
+            ON car_manufacturers.id = cars.car_manufacturer_id;
+`;
 export const GET_CAR_BY_ID_QUERY = `
     SELECT * FROM cars WHERE id = $1
 `;
@@ -43,4 +53,11 @@ export const MARK_CAR_AS_SOLD_QUERY = `
 `;
 export const DELETE_CAR_BY_ID = `
     DELETE FROM cars WHERE id = $1;
+`;
+export const ADD_CAR_IMAGE = `
+    INSERT INTO car_images (image_url, car_id) VALUES ($1, $2);
+`;
+
+export const GET_CAR_IMAGES_BY_ID = `
+    SELECT image_url FROM car_images WHERE car_id = $1 LIMIT 1;
 `;

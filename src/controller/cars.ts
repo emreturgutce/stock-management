@@ -1,16 +1,23 @@
 import { Router } from 'express';
 import createHttpError from 'http-errors';
+import { v4 as uuid } from 'uuid';
+import { AWS_S3_BUCKET } from '../config';
 import { pool } from '../config/database';
+import { uploadAvatar } from '../middleware/upload-avatar';
 import {
     ADD_CAR_COLOR_QUERY,
+    ADD_CAR_IMAGE,
     ADD_CAR_MANUFACTURER_QUERY,
     ADD_CAR_QUERY,
     DELETE_CAR_BY_ID,
     GET_CARS_QUERY,
+    GET_CARS_QUERY_NEW,
     GET_CAR_BY_ID_QUERY,
     GET_CAR_COLORS_QUERY,
+    GET_CAR_IMAGES_BY_ID,
     GET_CAR_MANUFACTURER_QUERY,
 } from '../model/car';
+import { uploadAvatarToS3 } from '../utils/upload-avatar-to-s3';
 
 const router = Router();
 
@@ -115,7 +122,7 @@ router.post('/', async (req, res, next) => {
 });
 
 router.get('/', async (req, res) => {
-    const { rows } = await pool.query(GET_CARS_QUERY);
+    const { rows } = await pool.query(GET_CARS_QUERY_NEW);
 
     res.json({ message: 'Cars fetched', status: 200, data: rows });
 });
@@ -135,6 +142,45 @@ router.get('/:id', async (req, res, next) => {
         status: 200,
         data: rows,
     });
+});
+
+router.get('/:id/images', async (req, res, next) => {
+    const { rows } = await pool.query(GET_CAR_IMAGES_BY_ID, [req.params.id]);
+
+    if (rows.length === 0) {
+        return next(new createHttpError.NotFound('No image found'));
+    }
+
+    res.json({
+        message: 'All car images fetched with the given id.',
+        status: 200,
+        data: rows,
+    });
+});
+
+router.post('/:id/images', uploadAvatar, async (req, res, next) => {
+    console.log('ROUTE HANDLER ', req.body, req.file);
+
+    if (!req.file) {
+        return next(new createHttpError.BadRequest('Please upload a file'));
+    }
+
+    const extension = req.file.originalname.split('.')[1];
+
+    const avatarId = `${uuid()}.${extension}`;
+
+    const imageURL = `https://${AWS_S3_BUCKET}.s3-eu-west-1.amazonaws.com/${avatarId}`;
+
+    try {
+        await uploadAvatarToS3(avatarId, req.file.buffer);
+
+        await pool.query(ADD_CAR_IMAGE, [imageURL, req.params.id]);
+
+        res.json({ message: 'Image saved', status: 200 });
+    } catch (err) {
+        console.log(err);
+        next(new createHttpError.BadRequest('Not valid image'));
+    }
 });
 
 router.delete('/:id', async (req, res, next) => {
