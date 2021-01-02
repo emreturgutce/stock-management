@@ -159,8 +159,6 @@ router.get('/:id/images', async (req, res, next) => {
 });
 
 router.post('/:id/images', uploadAvatar, async (req, res, next) => {
-    console.log('ROUTE HANDLER ', req.body, req.file);
-
     if (!req.file) {
         return next(new createHttpError.BadRequest('Please upload a file'));
     }
