@@ -61,3 +61,9 @@ export const ADD_CAR_IMAGE = `
 export const GET_CAR_IMAGES_BY_ID = `
     SELECT image_url FROM car_images WHERE car_id = $1 LIMIT 1;
 `;
+export const UPDATE_CAR_BY_ID = `
+    UPDATE cars 
+    SET title = $1, description = $2, sale_price = $3, purchase_price = $4, enter_date = $5, year = $6, 
+        model = $7, is_new = $8, car_color_code = $9, car_manufacturer_id= $10, supplier_id = $11
+    WHERE id = $12;
+`;

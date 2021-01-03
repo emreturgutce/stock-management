@@ -16,6 +16,7 @@ import {
     GET_CAR_COLORS_QUERY,
     GET_CAR_IMAGES_BY_ID,
     GET_CAR_MANUFACTURER_QUERY,
+    UPDATE_CAR_BY_ID,
 } from '../model/car';
 import { uploadAvatarToS3 } from '../utils/upload-avatar-to-s3';
 
@@ -116,6 +117,48 @@ router.post('/', async (req, res, next) => {
         next(
             new createHttpError.BadRequest(
                 'Invalid credentials to create a car.',
+            ),
+        );
+    }
+});
+
+router.put('/:id', async (req, res, next) => {
+    try {
+        const {
+            title,
+            sale_price,
+            purchase_price,
+            description,
+            model,
+            year,
+            is_new,
+            enter_date,
+            supplier_id,
+            car_manufacturer_id,
+            car_color_code,
+        } = req.body;
+
+        await pool.query(UPDATE_CAR_BY_ID, [
+            title,
+            description,
+            sale_price,
+            purchase_price,
+            enter_date,
+            year,
+            model,
+            is_new,
+            car_color_code,
+            car_manufacturer_id,
+            supplier_id,
+            req.params.id,
+        ]);
+
+        res.status(204).send();
+    } catch (err) {
+        console.log(err);
+        next(
+            new createHttpError.BadRequest(
+                'Invalid credentials to update a car.',
             ),
         );
     }
