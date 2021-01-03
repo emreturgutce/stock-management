@@ -15,7 +15,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
         );
     }
 
-    const userId = jwt.verify(req.session.userId, JWT_SECRET);
+    const userId = jwt.verify(req.session.userId, JWT_SECRET!);
 
     if (typeof userId === 'string') {
         const isValidUUID = validate(userId);

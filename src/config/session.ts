@@ -11,7 +11,7 @@ export const createSession = () =>
             client: redis,
         }),
         name: COOKIE_NAME,
-        secret: SESSION_SECRET,
+        secret: SESSION_SECRET!,
         resave: false,
         saveUninitialized: false,
         cookie: {

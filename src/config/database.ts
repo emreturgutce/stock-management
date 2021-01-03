@@ -12,7 +12,7 @@ const pool = new Pool({
     host: POSTGRES_HOST,
     database: POSTGRES_DB,
     password: POSTGRES_PASSWORD,
-    port: parseInt(POSTGRES_PORT, 10),
+    port: parseInt(POSTGRES_PORT!, 10),
 });
 
 console.log('🐘 Connected to db');

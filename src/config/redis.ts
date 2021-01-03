@@ -7,7 +7,7 @@ try {
     redis = new Redis({
         host: REDIS_HOST,
         password: REDIS_PASSWORD,
-        port: parseInt(REDIS_PORT, 10),
+        port: parseInt(REDIS_PORT!, 10),
     });
 
     console.log(`👹  Connected to Redis`);
