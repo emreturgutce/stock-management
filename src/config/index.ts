@@ -58,6 +58,10 @@ if (!process.env.AWS_S3_BUCKET) {
     throw new Error('AWS_S3_BUCKET must be defined');
 }
 
+if (!process.env.REDIS_PASSWORD) {
+    throw new Error('REDIS_PASSWORD must be defined');
+}
+
 export const {
     NODE_ENV,
     SESSION_SECRET,
@@ -73,5 +77,6 @@ export const {
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
     AWS_S3_BUCKET,
+    REDIS_PASSWORD,
 } = process.env;
 export { redis } from './redis';
