@@ -18,5 +18,6 @@ export const {
     AWS_SECRET_ACCESS_KEY,
     AWS_S3_BUCKET,
     REDIS_PASSWORD,
+    FRONTEND_URL,
 } = process.env;
 export { redis } from './redis';
