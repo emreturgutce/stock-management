@@ -15,7 +15,7 @@ export const createSession = () =>
         resave: false,
         saveUninitialized: false,
         cookie: {
-            secure: NODE_ENV === 'production',
+            secure: false,
             httpOnly: false,
             maxAge: COOKIE_EXPIRATION,
         },
