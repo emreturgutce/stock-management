@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { PORT } from './config';
-import { createSession } from './config/session';
+import session from './config/session';
 import { indexRouter } from './controller';
 import { corsOptions } from './config/cors-options';
 
@@ -12,7 +12,7 @@ app.disable('x-powered-by');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
-app.use(createSession());
+app.use(session);
 
 app.use(indexRouter);
 

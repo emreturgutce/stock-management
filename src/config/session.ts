@@ -5,19 +5,18 @@ import { COOKIE_EXPIRATION, COOKIE_NAME } from '../constants';
 
 const RedisStore = connectRedis(session);
 
-export const createSession = () =>
-    session({
-        store: new RedisStore({
-            client: redis,
-        }),
-        name: COOKIE_NAME!,
-        secret: SESSION_SECRET!,
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            sameSite: 'lax',
-            secure: NODE_ENV === 'production',
-            httpOnly: false,
-            maxAge: COOKIE_EXPIRATION,
-        },
-    });
+export default session({
+    store: new RedisStore({
+        client: redis,
+    }),
+    name: COOKIE_NAME!,
+    secret: SESSION_SECRET!,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        sameSite: 'lax',
+        secure: NODE_ENV === 'production',
+        httpOnly: false,
+        maxAge: COOKIE_EXPIRATION,
+    },
+});
