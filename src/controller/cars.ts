@@ -74,8 +74,10 @@ router.get('/manufacturers', async (req, res) => {
     res.json({ message: 'Car manufacturers fetched', status: 200, data: rows });
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', uploadAvatar, async (req, res, next) => {
     try {
+        await pool.query('BEGIN');
+
         const {
             title,
             sale_price,
@@ -92,7 +94,7 @@ router.post('/', async (req, res, next) => {
             car_color_code,
         } = req.body;
 
-        const { rows } = await pool.query(ADD_CAR_QUERY, [
+        const carRes = await pool.query(ADD_CAR_QUERY, [
             title,
             sale_price,
             purchase_price,
@@ -108,12 +110,35 @@ router.post('/', async (req, res, next) => {
             car_color_code,
         ]);
 
+        if (req.file) {
+            const extension = req.file.originalname.split('.')[1];
+
+            const avatarId = `${uuid()}.${extension}`;
+
+            const imageURL = `https://${AWS_S3_BUCKET}.s3-eu-west-1.amazonaws.com/${avatarId}`;
+
+            const uploadAvatarPromise = uploadAvatarToS3(
+                avatarId,
+                req.file.buffer,
+            );
+
+            const addCarImagePromise = pool.query(ADD_CAR_IMAGE, [
+                imageURL,
+                carRes.rows[0].car_id,
+            ]);
+
+            await Promise.all([uploadAvatarPromise, addCarImagePromise]);
+        }
+
+        await pool.query('COMMIT');
+
         res.status(201).json({
             message: 'New car created',
             status: 201,
-            data: rows,
+            data: carRes.rows,
         });
     } catch (err) {
+        await pool.query('ROLLBACK');
         next(
             new createHttpError.BadRequest(
                 'Invalid credentials to create a car.',

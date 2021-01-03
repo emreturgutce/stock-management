@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import createHttpError, { NotExtended } from 'http-errors';
 import { pool } from '../config/database';
+import { uploadAvatar } from '../middleware/upload-avatar';
 import { MARK_CAR_AS_SOLD_QUERY } from '../model/car';
+import { ADD_CUSTOMER_QUERY } from '../model/customer';
 import {
     ADD_INVOICE_QUERY,
     ADD_SALE_QUERY,
@@ -78,30 +80,54 @@ router.get('/:id', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
     try {
+        await pool.query('BEGIN');
         const {
-            customer_id,
+            first_name,
+            last_name,
+            birth_date,
+            serial_number,
+            price,
             personel_id,
             car_id,
-            invoice_id,
             sale_date,
         } = req.body;
 
-        const { rows } = await pool.query(ADD_SALE_QUERY, [
-            customer_id,
+        /* CREATE THE CUSTOMER */
+
+        const customerRes = await pool.query(ADD_CUSTOMER_QUERY, [
+            first_name,
+            last_name,
+            birth_date,
+        ]);
+
+        /* CREATE THE INVOICE */
+
+        const invoiceRes = await pool.query(ADD_INVOICE_QUERY, [
+            serial_number,
+            price,
+        ]);
+
+        /* CREATE THE SALE */
+
+        const saleRes = await pool.query(ADD_SALE_QUERY, [
+            customerRes.rows[0].id,
             personel_id,
             car_id,
-            invoice_id,
+            invoiceRes.rows[0].id,
             sale_date,
         ]);
 
         await pool.query(MARK_CAR_AS_SOLD_QUERY, [car_id]);
 
+        await pool.query('COMMIT');
+
         res.status(201).json({
             message: 'New sale created',
             status: 201,
-            data: rows,
+            data: saleRes.rows,
         });
     } catch (err) {
+        await pool.query('ROLLBACK');
         next(new createHttpError.BadRequest('Invalid values to create a sale'));
     }
 });
