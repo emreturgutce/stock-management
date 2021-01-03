@@ -16,7 +16,7 @@ export default session({
     cookie: {
         sameSite: 'none',
         secure: NODE_ENV === 'production',
-        httpOnly: false,
+        httpOnly: true,
         maxAge: COOKIE_EXPIRATION,
     },
 });
