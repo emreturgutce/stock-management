@@ -14,7 +14,7 @@ export default session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        sameSite: 'lax',
+        sameSite: 'none',
         secure: NODE_ENV === 'production',
         httpOnly: false,
         maxAge: COOKIE_EXPIRATION,
