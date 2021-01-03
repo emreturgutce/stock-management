@@ -27,7 +27,7 @@ router.post('/login', async (req, res, next) => {
             );
         }
 
-        const token = jwt.sign(rows[0].id, JWT_SECRET);
+        const token = jwt.sign(rows[0].id, JWT_SECRET!);
         // @ts-ignore
         req.session!.userId = token;
 
