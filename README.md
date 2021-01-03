@@ -10,19 +10,27 @@ if you want to check out client repository you can access it [here](https://gith
 
 #### Login
 
-![](https://github.com/emreturgutce/stock-management/blob/master/photos/login.JPG)
+<p align="center">
+    <img src="photos/login.jpg" />
+</p>
 
 #### Home
 
-![](https://github.com/emreturgutce/stock-management/blob/master/photos/homepage.JPG)
+<p align="center">
+    <img src="photos/homepage.jpg" />
+</p>
 
 #### Car Add
 
-![](https://github.com/emreturgutce/stock-management/blob/master/photos/car-add.JPG)
+<p align="center">
+    <img src="photos/car-add.jpg" />
+</p>
 
 #### Car Detail
 
-![](https://github.com/emreturgutce/stock-management/blob/master/photos/detail.JPG)
+<p align="center">
+    <img src="photos/detail.jpg" />
+</p>
 
 ### Installation
 
