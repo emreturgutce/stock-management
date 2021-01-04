@@ -6,6 +6,18 @@ Stock Management is an open-source full-stack project that can handle personel r
 
 if you want to check out client repository you can access it [here](https://github.com/emreturgutce/stock-management-client)
 
+### Database Design
+
+<p align="center">
+    <img src="photos/db-design.png" />
+</p>
+
+### Project Architecture
+
+<p align="center">
+    <img src="photos/architecture.png" />
+</p>
+
 ### Images
 
 #### Login
