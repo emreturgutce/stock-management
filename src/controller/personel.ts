@@ -45,6 +45,8 @@ router.get('/logout', auth, async (req, res, next) => {
             );
     });
 
+    req.session.userId = undefined;
+
     res.clearCookie(COOKIE_NAME);
 
     res.status(204).send();
