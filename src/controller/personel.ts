@@ -29,8 +29,8 @@ router.post('/login', rateLimiter, async (req, res, next) => {
         }
 
         const token = jwt.sign(rows[0].id, JWT_SECRET!);
-        // @ts-ignore
-        req.session!.userId = token;
+
+        req.session.userId = token;
 
         res.json({ data: rows, message: 'Logged in', status: 200 });
     } catch (err) {
