@@ -10,12 +10,13 @@ import {
 } from '../model/personel';
 import { JWT_SECRET, NODE_ENV } from '../config';
 import { auth } from '../middleware/auth';
-import { COOKIE_EXPIRATION, COOKIE_NAME } from '../constants';
+import { COOKIE_NAME } from '../constants';
 import createHttpError from 'http-errors';
+import { rateLimiter } from '../middleware/rate-limiter';
 
 const router = Router();
 
-router.post('/login', async (req, res, next) => {
+router.post('/login', rateLimiter, async (req, res, next) => {
     try {
         const { email, password } = req.body;
         const { rows } = await pool.query(GET_PERSONEL_BY_EMAIL, [email]);
@@ -76,7 +77,7 @@ router.get('/current', auth, async (req, res, next) => {
     });
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', rateLimiter, async (req, res, next) => {
     try {
         const {
             first_name,
