@@ -38,14 +38,14 @@ router.post('/login', async (req, res, next) => {
 });
 
 router.get('/logout', auth, async (req, res, next) => {
-    res.clearCookie(COOKIE_NAME);
-
     req.session.destroy((err: any) => {
         if (err)
             return next(
                 new createHttpError.InternalServerError('Could not logged out'),
             );
     });
+
+    res.clearCookie(COOKIE_NAME);
 
     res.status(204).send();
 });
