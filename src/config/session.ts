@@ -13,7 +13,6 @@ export default session({
     secret: SESSION_SECRET!,
     resave: false,
     saveUninitialized: false,
-    unset: 'destroy',
     cookie: {
         sameSite: 'none',
         secure: NODE_ENV === 'production',
