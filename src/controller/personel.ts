@@ -49,7 +49,6 @@ router.get('/logout', auth, async (req, res, next) => {
         sameSite: 'none',
         secure: NODE_ENV === 'production',
         httpOnly: true,
-        maxAge: COOKIE_EXPIRATION,
     });
 
     res.status(204).send();
