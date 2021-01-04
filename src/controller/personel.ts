@@ -38,7 +38,12 @@ router.post('/login', async (req, res, next) => {
 });
 
 router.get('/logout', auth, async (req, res, next) => {
-    req.session = null;
+    req.session.destroy((err: any) => {
+        if (err)
+            return next(
+                new createHttpError.InternalServerError('Could not logged out'),
+            );
+    });
 
     res.clearCookie(COOKIE_NAME);
 

@@ -3,6 +3,6 @@ declare namespace Express {
         session: {
             userId: string | undefined;
             destroy: function;
-        } | null;
+        };
     }
 }
