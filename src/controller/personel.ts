@@ -8,9 +8,9 @@ import {
     GET_PERSONEL_BY_EMAIL,
     GET_PERSONEL_BY_ID,
 } from '../model/personel';
-import { JWT_SECRET } from '../config';
+import { JWT_SECRET, NODE_ENV } from '../config';
 import { auth } from '../middleware/auth';
-import { COOKIE_NAME } from '../constants';
+import { COOKIE_EXPIRATION, COOKIE_NAME } from '../constants';
 import createHttpError from 'http-errors';
 
 const router = Router();
@@ -45,7 +45,12 @@ router.get('/logout', auth, async (req, res, next) => {
             );
     });
 
-    res.clearCookie(COOKIE_NAME);
+    res.clearCookie(COOKIE_NAME, {
+        sameSite: 'none',
+        secure: NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: COOKIE_EXPIRATION,
+    });
 
     res.status(204).send();
 });
