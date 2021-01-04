@@ -37,16 +37,17 @@ router.post('/login', async (req, res, next) => {
     }
 });
 
-router.get('/logout', auth, async (req, res) => {
-    return new Promise((resolve, reject) => {
-        req.session.destroy((err: any) => {
-            if (err) res.json({ message: 'Could not logged out', error: err });
-        });
-
-        res.clearCookie(COOKIE_NAME);
-
-        res.status(204).send();
+router.get('/logout', auth, async (req, res, next) => {
+    req.session.destroy((err: any) => {
+        if (err)
+            return next(
+                new createHttpError.InternalServerError('Could not logged out'),
+            );
     });
+
+    res.clearCookie(COOKIE_NAME);
+
+    res.status(204).send();
 });
 
 router.get('/', auth, async (req, res) => {
