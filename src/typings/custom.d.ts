@@ -1,8 +1,9 @@
-export declare module 'express-session' {
+declare module 'express-session' {
     interface Session {
         userId: string;
     }
 }
+
 declare global {
     namespace NodeJS {
         interface ProcessEnv {
