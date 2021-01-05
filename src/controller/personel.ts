@@ -13,6 +13,7 @@ import { auth } from '../middleware/auth';
 import { COOKIE_NAME } from '../constants';
 import createHttpError from 'http-errors';
 import { rateLimiter } from '../middleware/rate-limiter';
+import { cookieOptions } from '../config/session';
 
 const router = Router();
 
@@ -46,11 +47,7 @@ router.get('/logout', auth, async (req, res, next) => {
             );
     });
 
-    res.clearCookie(COOKIE_NAME, {
-        sameSite: 'none',
-        secure: NODE_ENV === 'production',
-        httpOnly: true,
-    });
+    res.clearCookie(COOKIE_NAME, cookieOptions);
 
     res.status(204).send();
 });

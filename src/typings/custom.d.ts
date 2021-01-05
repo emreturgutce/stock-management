@@ -24,6 +24,11 @@ declare global {
             AWS_S3_BUCKET: string;
         }
     }
+    interface CookieOptions {
+        sameSite: boolean | 'none' | 'strict' | 'lax' | undefined;
+        secure: boolean;
+        httpOnly: boolean;
+    }
 }
 
 export {};

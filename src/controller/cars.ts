@@ -10,7 +10,6 @@ import {
     ADD_CAR_MANUFACTURER_QUERY,
     ADD_CAR_QUERY,
     DELETE_CAR_BY_ID,
-    GET_CARS_QUERY,
     GET_CARS_QUERY_NEW,
     GET_CAR_BY_ID_QUERY,
     GET_CAR_COLORS_QUERY,
@@ -180,7 +179,6 @@ router.put('/:id', async (req, res, next) => {
 
         res.status(204).send();
     } catch (err) {
-        console.log(err);
         next(
             new createHttpError.BadRequest(
                 'Invalid credentials to update a car.',
@@ -244,7 +242,6 @@ router.post('/:id/images', uploadAvatar, async (req, res, next) => {
 
         res.json({ message: 'Image saved', status: 200 });
     } catch (err) {
-        console.log(err);
         next(new createHttpError.BadRequest('Not valid image'));
     }
 });
