@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { app } from '../../../app';
-import { loginUser } from '../../../utils/login-user';
+import { loginUser } from '../../../utils';
 
 const user: User = {
     email: 'al2i@veli.com',
