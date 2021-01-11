@@ -1,4 +1,3 @@
-import { ReadStream } from 'fs';
 import { AWS_S3_BUCKET } from '../config';
 import { s3 } from '../config/s3';
 

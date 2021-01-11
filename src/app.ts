@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import session from './config/session';
-import { indexRouter } from './controller';
+import { indexRouter } from './controllers';
 import { corsOptions } from './config/cors-options';
 
 const app = express();

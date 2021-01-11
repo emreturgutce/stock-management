@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { auth } from '../middleware/auth';
-import { errorHandler } from '../middleware/error-handler';
-import { notFound } from '../middleware/not-found';
+import { auth } from '../middlewares/auth';
+import { errorHandler } from '../middlewares/error-handler';
+import { notFound } from '../middlewares/not-found';
 import { carRouter } from './cars';
 import { customerRouter } from './customers';
 import { personelRouter } from './personel';

@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import createHttpError, { NotExtended } from 'http-errors';
+import createHttpError from 'http-errors';
 import { pool } from '../config/database';
-import { uploadAvatar } from '../middleware/upload-avatar';
-import { MARK_CAR_AS_SOLD_QUERY } from '../model/car';
-import { ADD_CUSTOMER_QUERY } from '../model/customer';
+import { MARK_CAR_AS_SOLD_QUERY } from '../queries/car';
+import { ADD_CUSTOMER_QUERY } from '../queries/customer';
 import {
     ADD_INVOICE_QUERY,
     ADD_SALE_QUERY,
@@ -11,7 +10,7 @@ import {
     GET_INVOICE_BY_ID_QUERY,
     GET_SALES_QUERY,
     GET_SALE_BY_ID_QUERY,
-} from '../model/sale';
+} from '../queries/sale';
 
 const router = Router();
 

@@ -3,7 +3,7 @@ import createHttpError from 'http-errors';
 import { v4 as uuid } from 'uuid';
 import { AWS_S3_BUCKET } from '../config';
 import { pool } from '../config/database';
-import { uploadAvatar } from '../middleware/upload-avatar';
+import { uploadAvatar } from '../middlewares/upload-avatar';
 import {
     ADD_CAR_COLOR_QUERY,
     ADD_CAR_IMAGE,
@@ -16,7 +16,7 @@ import {
     GET_CAR_IMAGES_BY_ID,
     GET_CAR_MANUFACTURER_QUERY,
     UPDATE_CAR_BY_ID,
-} from '../model/car';
+} from '../queries/car';
 import { uploadAvatarToS3 } from '../utils/upload-avatar-to-s3';
 
 const router = Router();
