@@ -5,7 +5,7 @@ import { redis } from '../config';
 const rateLimiterRedis = new RateLimiterRedis({
     storeClient: redis,
     keyPrefix: 'ratelimit',
-    points: 5,
+    points: 25,
     duration: 60,
 });
 
