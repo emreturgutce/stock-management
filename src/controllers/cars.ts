@@ -2,7 +2,11 @@ import { Router, Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
 import { v4 as uuid } from 'uuid';
 import { AWS_S3_BUCKET, DatabaseClient } from '../config';
-import { uploadAvatar, validateCarColor } from '../middlewares';
+import {
+    uploadAvatar,
+    validateCarColor,
+    validateCarManufacturer,
+} from '../middlewares';
 import {
     ADD_CAR_COLOR_QUERY,
     ADD_CAR_IMAGE,
@@ -47,8 +51,10 @@ router.get('/colors', async (req, res) => {
     res.json({ message: 'Car colors fetched', status: 200, data: rows });
 });
 
-router.post('/manufacturers', async (req, res, next) => {
-    try {
+router.post(
+    '/manufacturers',
+    validateCarManufacturer,
+    async (req: Request, res: Response, next: NextFunction) => {
         const { name } = req.body;
         const {
             rows,
@@ -62,14 +68,8 @@ router.post('/manufacturers', async (req, res, next) => {
             status: 201,
             data: rows,
         });
-    } catch (err) {
-        next(
-            new createHttpError.BadRequest(
-                'Invalid values to create a manufacturer.',
-            ),
-        );
-    }
-});
+    },
+);
 
 router.get('/manufacturers', async (req, res) => {
     const { rows } = await DatabaseClient.getInstance().query(
