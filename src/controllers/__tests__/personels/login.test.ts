@@ -1,11 +1,7 @@
 import { expect } from 'chai';
 import request from 'supertest';
 import { app } from '../../../app';
-
-const user = {
-    email: 'al2i@veli.com',
-    password: '123456',
-};
+import { user } from '../../../utils/login-user';
 
 const postPersonelsLogin = request(app).post('/api/personels/login');
 

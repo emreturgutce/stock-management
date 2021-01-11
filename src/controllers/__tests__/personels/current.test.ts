@@ -1,12 +1,7 @@
 import { expect } from 'chai';
 import request from 'supertest';
 import { app } from '../../../app';
-import { loginUser } from '../../../utils';
-
-const user: User = {
-    email: 'al2i@veli.com',
-    password: '123456',
-};
+import { loginUser, user } from '../../../utils';
 
 describe('/api/personels/current tests', () => {
     it('Should return 200 OK for valid cookie', async () => {

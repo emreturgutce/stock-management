@@ -53,16 +53,22 @@ router.post(
 );
 
 router.get('/logout', auth, async (req, res, next) => {
-    req.session.destroy((err: any) => {
-        if (err)
-            return next(
-                new createHttpError.InternalServerError('Could not logged out'),
-            );
-    });
+    try {
+        req.session.destroy((err: any) => {
+            if (err)
+                return next(
+                    new createHttpError.InternalServerError(
+                        'Could not logged out',
+                    ),
+                );
+        });
 
-    res.clearCookie(COOKIE_NAME, cookieOptions);
+        res.clearCookie(COOKIE_NAME, cookieOptions);
 
-    res.status(204).send();
+        res.status(204).send();
+    } catch (error) {
+        next(new createHttpError.InternalServerError('Could not logged out'));
+    }
 });
 
 router.get('/', auth, async (req, res, next) => {

@@ -11,3 +11,8 @@ export const loginUser = async (user: User) => {
 
     return cookie;
 };
+
+export const user: User = {
+    email: 'al2i@veli.com',
+    password: '123456',
+};
