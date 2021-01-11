@@ -1,5 +1,4 @@
-import { AWS_S3_BUCKET } from '../config';
-import { s3 } from '../config/s3';
+import { AWS_S3_BUCKET, s3 } from '../config';
 
 export const uploadAvatarToS3 = (avatarId: string, readStream: Buffer) => {
     return s3

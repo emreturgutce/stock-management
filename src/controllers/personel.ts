@@ -1,20 +1,16 @@
 import { Router, Request, Response, NextFunction } from 'express';
+import createHttpError from 'http-errors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { DatabaseClient } from '../config/database';
+import { DatabaseClient, cookieOptions, JWT_SECRET } from '../config';
 import {
     ADD_PERSONEL_QUERY,
     GET_PERSONELS_QUERY,
     GET_PERSONEL_BY_EMAIL,
     GET_PERSONEL_BY_ID,
 } from '../queries';
-import { JWT_SECRET } from '../config';
-import { auth } from '../middlewares/auth';
+import { auth, rateLimiter, validateLogin } from '../middlewares';
 import { COOKIE_NAME } from '../constants';
-import createHttpError from 'http-errors';
-import { rateLimiter } from '../middlewares/rate-limiter';
-import { cookieOptions } from '../config/session';
-import { validateLogin } from '../middlewares/validate-login';
 
 const router = Router();
 

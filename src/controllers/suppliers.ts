@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import createHttpError from 'http-errors';
-import { DatabaseClient } from '../config/database';
+import { DatabaseClient } from '../config';
 import {
     ADD_SUPPLIER_QUERY,
     GET_SUPPLIERS_QUERY,

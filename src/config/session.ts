@@ -13,7 +13,7 @@ export const cookieOptions: CookieOptions = {
     httpOnly: true,
 };
 
-export default session({
+const sessionConfig = session({
     store: new RedisStore({
         client: RedisClient.getInstance(),
     }),
@@ -26,3 +26,5 @@ export default session({
         maxAge: COOKIE_EXPIRATION,
     },
 });
+
+export { sessionConfig as session };

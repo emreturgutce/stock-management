@@ -1,9 +1,8 @@
 import { Router } from 'express';
 import createHttpError from 'http-errors';
 import { v4 as uuid } from 'uuid';
-import { AWS_S3_BUCKET } from '../config';
-import { DatabaseClient } from '../config/database';
-import { uploadAvatar } from '../middlewares/upload-avatar';
+import { AWS_S3_BUCKET, DatabaseClient } from '../config';
+import { uploadAvatar } from '../middlewares';
 import {
     ADD_CAR_COLOR_QUERY,
     ADD_CAR_IMAGE,
