@@ -1,7 +1,7 @@
-import { AWS_S3_BUCKET, s3 } from '../config';
+import { AWS_S3_BUCKET, S3Client } from '../config';
 
 export const uploadAvatarToS3 = (avatarId: string, readStream: Buffer) => {
-    return s3
+    return S3Client.getInstance()
         .upload({
             Bucket: AWS_S3_BUCKET!,
             Key: avatarId,
