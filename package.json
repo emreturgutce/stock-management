@@ -8,7 +8,7 @@
     "scripts": {
         "start": "cross-env NODE_ENV=production node dist/index.js",
         "dev": "ts-node-dev --poll --respawn --transpile-only src/index.ts",
-        "test": "nodemon --watch . --ext ts --exec \"mocha -r ts-node/register src/**/*.test.ts\"",
+        "test": "nodemon --watch . --ext ts --exec \"mocha --file src/test/setup.ts -r ts-node/register src/**/*.test.ts\"",
         "build": "tsc"
     },
     "devDependencies": {
