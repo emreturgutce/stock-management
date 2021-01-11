@@ -1,8 +1,8 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
 import { v4 as uuid } from 'uuid';
 import { AWS_S3_BUCKET, DatabaseClient } from '../config';
-import { uploadAvatar } from '../middlewares';
+import { uploadAvatar, validateCarColor } from '../middlewares';
 import {
     ADD_CAR_COLOR_QUERY,
     ADD_CAR_IMAGE,
@@ -20,8 +20,10 @@ import { uploadAvatarToS3 } from '../utils';
 
 const router = Router();
 
-router.post('/colors', async (req, res, next) => {
-    try {
+router.post(
+    '/colors',
+    validateCarColor,
+    async (req: Request, res: Response, next: NextFunction) => {
         const { name } = req.body;
         const {
             rows,
@@ -34,12 +36,8 @@ router.post('/colors', async (req, res, next) => {
             status: 201,
             data: rows,
         });
-    } catch (err) {
-        next(
-            new createHttpError.BadRequest('Invalid values to create a color.'),
-        );
-    }
-});
+    },
+);
 
 router.get('/colors', async (req, res) => {
     const { rows } = await DatabaseClient.getInstance().query(
