@@ -7,8 +7,8 @@ import {
     GET_PERSONELS_QUERY,
     GET_PERSONEL_BY_EMAIL,
     GET_PERSONEL_BY_ID,
-} from '../queries/personel';
-import { JWT_SECRET, NODE_ENV } from '../config';
+} from '../queries';
+import { JWT_SECRET } from '../config';
 import { auth } from '../middlewares/auth';
 import { COOKIE_NAME } from '../constants';
 import createHttpError from 'http-errors';

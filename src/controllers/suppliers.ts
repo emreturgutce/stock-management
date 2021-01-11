@@ -5,7 +5,7 @@ import {
     ADD_SUPPLIER_QUERY,
     GET_SUPPLIERS_QUERY,
     GET_SUPPLIER_BY_ID_QUERY,
-} from '../queries/supplier';
+} from '../queries';
 
 const router = Router();
 

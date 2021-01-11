@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import createHttpError from 'http-errors';
 import { DatabaseClient } from '../config/database';
-import { ADD_CUSTOMER_QUERY, GET_CUSTOMERS_QUERY } from '../queries/customer';
+import { ADD_CUSTOMER_QUERY, GET_CUSTOMERS_QUERY } from '../queries';
 
 const router = Router();
 

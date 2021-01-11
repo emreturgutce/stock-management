@@ -1,8 +1,6 @@
 import { Router } from 'express';
 import createHttpError from 'http-errors';
 import { DatabaseClient } from '../config/database';
-import { MARK_CAR_AS_SOLD_QUERY } from '../queries/car';
-import { ADD_CUSTOMER_QUERY } from '../queries/customer';
 import {
     ADD_INVOICE_QUERY,
     ADD_SALE_QUERY,
@@ -10,7 +8,9 @@ import {
     GET_INVOICE_BY_ID_QUERY,
     GET_SALES_QUERY,
     GET_SALE_BY_ID_QUERY,
-} from '../queries/sale';
+    ADD_CUSTOMER_QUERY,
+    MARK_CAR_AS_SOLD_QUERY,
+} from '../queries';
 
 const router = Router();
 

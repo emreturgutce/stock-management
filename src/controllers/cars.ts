@@ -16,7 +16,7 @@ import {
     GET_CAR_IMAGES_BY_ID,
     GET_CAR_MANUFACTURER_QUERY,
     UPDATE_CAR_BY_ID,
-} from '../queries/car';
+} from '../queries';
 import { uploadAvatarToS3 } from '../utils/upload-avatar-to-s3';
 
 const router = Router();
