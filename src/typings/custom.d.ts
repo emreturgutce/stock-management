@@ -29,6 +29,11 @@ declare global {
         secure: boolean;
         httpOnly: boolean;
     }
+
+    type User = {
+        email: string;
+        password: string;
+    };
 }
 
 export {};
