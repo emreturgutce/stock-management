@@ -2,12 +2,14 @@ import { Router, Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
 import { v4 as uuid } from 'uuid';
 import { AWS_S3_BUCKET, DatabaseClient } from '../config';
+import { ForeignKeyConstaintError } from '../errors/foreign-key-constraint-error';
 import { UniqueKeyConstaintError } from '../errors/unique-key-constraint-error';
 import {
     uploadAvatar,
     validateCarColor,
     validateCarManufacturer,
 } from '../middlewares';
+import { validateCar } from '../middlewares/validate-car';
 import {
     ADD_CAR_COLOR_QUERY,
     ADD_CAR_IMAGE,
@@ -112,78 +114,97 @@ router.get('/manufacturers', async (req, res, next) => {
     }
 });
 
-router.post('/', uploadAvatar, async (req, res, next) => {
-    try {
-        await DatabaseClient.getInstance().query('BEGIN');
+router.post(
+    '/',
+    uploadAvatar,
+    validateCar,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            await DatabaseClient.getInstance().query('BEGIN');
 
-        const {
-            title,
-            sale_price,
-            purchase_price,
-            is_sold,
-            description,
-            model,
-            year,
-            is_new,
-            enter_date,
-            supplier_id,
-            personel_id,
-            car_manufacturer_id,
-            car_color_code,
-        } = req.body;
+            const {
+                title,
+                sale_price,
+                purchase_price,
+                is_sold,
+                description,
+                model,
+                year,
+                is_new,
+                enter_date,
+                supplier_id,
+                personel_id,
+                car_manufacturer_id,
+                car_color_code,
+            } = req.body;
 
-        const carRes = await DatabaseClient.getInstance().query(ADD_CAR_QUERY, [
-            title,
-            sale_price,
-            purchase_price,
-            is_sold,
-            description,
-            model,
-            year,
-            is_new,
-            enter_date,
-            supplier_id,
-            personel_id,
-            car_manufacturer_id,
-            car_color_code,
-        ]);
-
-        if (req.file) {
-            const extension = req.file.originalname.split('.')[1];
-
-            const avatarId = `${uuid()}.${extension}`;
-
-            const imageURL = `https://${AWS_S3_BUCKET}.s3-eu-west-1.amazonaws.com/${avatarId}`;
-
-            const uploadAvatarPromise = uploadAvatarToS3(
-                avatarId,
-                req.file.buffer,
+            const carRes = await DatabaseClient.getInstance().query(
+                ADD_CAR_QUERY,
+                [
+                    title,
+                    sale_price,
+                    purchase_price,
+                    is_sold,
+                    description,
+                    model,
+                    year,
+                    is_new,
+                    enter_date,
+                    supplier_id,
+                    personel_id,
+                    car_manufacturer_id,
+                    car_color_code,
+                ],
             );
 
-            const addCarImagePromise = DatabaseClient.getInstance().query(
-                ADD_CAR_IMAGE,
-                [imageURL, carRes.rows[0].car_id],
-            );
+            if (req.file) {
+                const extension = req.file.originalname.split('.')[1];
 
-            await Promise.all([uploadAvatarPromise, addCarImagePromise]);
+                const avatarId = `${uuid()}.${extension}`;
+
+                const imageURL = `https://${AWS_S3_BUCKET}.s3-eu-west-1.amazonaws.com/${avatarId}`;
+
+                const uploadAvatarPromise = uploadAvatarToS3(
+                    avatarId,
+                    req.file.buffer,
+                );
+
+                const addCarImagePromise = DatabaseClient.getInstance().query(
+                    ADD_CAR_IMAGE,
+                    [imageURL, carRes.rows[0].car_id],
+                );
+
+                await Promise.all([uploadAvatarPromise, addCarImagePromise]);
+            }
+
+            await DatabaseClient.getInstance().query('COMMIT');
+
+            res.status(201).json({
+                message: 'New car created',
+                status: 201,
+                data: carRes.rows,
+            });
+        } catch (error) {
+            await DatabaseClient.getInstance().query('ROLLBACK');
+
+            if (
+                error.message.includes(
+                    'duplicate key value violates unique constraint',
+                )
+            ) {
+                return next(new UniqueKeyConstaintError());
+            } else if (
+                error.message.includes('violates foreign key constraint')
+            ) {
+                return next(new ForeignKeyConstaintError());
+            } else if (error.message.includes('invalid input syntax')) {
+                return next(new createHttpError.BadRequest('Invalid input'));
+            }
+
+            next(new createHttpError.InternalServerError());
         }
-
-        await DatabaseClient.getInstance().query('COMMIT');
-
-        res.status(201).json({
-            message: 'New car created',
-            status: 201,
-            data: carRes.rows,
-        });
-    } catch (err) {
-        await DatabaseClient.getInstance().query('ROLLBACK');
-        next(
-            new createHttpError.BadRequest(
-                'Invalid credentials to create a car.',
-            ),
-        );
-    }
-});
+    },
+);
 
 router.put('/:id', async (req, res, next) => {
     try {
