@@ -2,7 +2,7 @@ import { Router } from 'express';
 import createHttpError from 'http-errors';
 import { v4 as uuid } from 'uuid';
 import { AWS_S3_BUCKET } from '../config';
-import { pool } from '../config/database';
+import { DatabaseClient } from '../config/database';
 import { uploadAvatar } from '../middlewares/upload-avatar';
 import {
     ADD_CAR_COLOR_QUERY,
@@ -24,7 +24,9 @@ const router = Router();
 router.post('/colors', async (req, res, next) => {
     try {
         const { name } = req.body;
-        const { rows } = await pool.query(ADD_CAR_COLOR_QUERY, [
+        const {
+            rows,
+        } = await DatabaseClient.getInstance().query(ADD_CAR_COLOR_QUERY, [
             name.toUpperCase(),
         ]);
 
@@ -41,7 +43,9 @@ router.post('/colors', async (req, res, next) => {
 });
 
 router.get('/colors', async (req, res) => {
-    const { rows } = await pool.query(GET_CAR_COLORS_QUERY);
+    const { rows } = await DatabaseClient.getInstance().query(
+        GET_CAR_COLORS_QUERY,
+    );
 
     res.json({ message: 'Car colors fetched', status: 200, data: rows });
 });
@@ -49,9 +53,12 @@ router.get('/colors', async (req, res) => {
 router.post('/manufacturers', async (req, res, next) => {
     try {
         const { name } = req.body;
-        const { rows } = await pool.query(ADD_CAR_MANUFACTURER_QUERY, [
-            name.toUpperCase(),
-        ]);
+        const {
+            rows,
+        } = await DatabaseClient.getInstance().query(
+            ADD_CAR_MANUFACTURER_QUERY,
+            [name.toUpperCase()],
+        );
 
         res.status(201).json({
             message: 'New car manifacturer added',
@@ -68,14 +75,16 @@ router.post('/manufacturers', async (req, res, next) => {
 });
 
 router.get('/manufacturers', async (req, res) => {
-    const { rows } = await pool.query(GET_CAR_MANUFACTURER_QUERY);
+    const { rows } = await DatabaseClient.getInstance().query(
+        GET_CAR_MANUFACTURER_QUERY,
+    );
 
     res.json({ message: 'Car manufacturers fetched', status: 200, data: rows });
 });
 
 router.post('/', uploadAvatar, async (req, res, next) => {
     try {
-        await pool.query('BEGIN');
+        await DatabaseClient.getInstance().query('BEGIN');
 
         const {
             title,
@@ -93,7 +102,7 @@ router.post('/', uploadAvatar, async (req, res, next) => {
             car_color_code,
         } = req.body;
 
-        const carRes = await pool.query(ADD_CAR_QUERY, [
+        const carRes = await DatabaseClient.getInstance().query(ADD_CAR_QUERY, [
             title,
             sale_price,
             purchase_price,
@@ -121,15 +130,15 @@ router.post('/', uploadAvatar, async (req, res, next) => {
                 req.file.buffer,
             );
 
-            const addCarImagePromise = pool.query(ADD_CAR_IMAGE, [
-                imageURL,
-                carRes.rows[0].car_id,
-            ]);
+            const addCarImagePromise = DatabaseClient.getInstance().query(
+                ADD_CAR_IMAGE,
+                [imageURL, carRes.rows[0].car_id],
+            );
 
             await Promise.all([uploadAvatarPromise, addCarImagePromise]);
         }
 
-        await pool.query('COMMIT');
+        await DatabaseClient.getInstance().query('COMMIT');
 
         res.status(201).json({
             message: 'New car created',
@@ -137,7 +146,7 @@ router.post('/', uploadAvatar, async (req, res, next) => {
             data: carRes.rows,
         });
     } catch (err) {
-        await pool.query('ROLLBACK');
+        await DatabaseClient.getInstance().query('ROLLBACK');
         next(
             new createHttpError.BadRequest(
                 'Invalid credentials to create a car.',
@@ -162,7 +171,7 @@ router.put('/:id', async (req, res, next) => {
             car_color_code,
         } = req.body;
 
-        await pool.query(UPDATE_CAR_BY_ID, [
+        await DatabaseClient.getInstance().query(UPDATE_CAR_BY_ID, [
             title,
             description,
             sale_price,
@@ -188,14 +197,18 @@ router.put('/:id', async (req, res, next) => {
 });
 
 router.get('/', async (req, res) => {
-    const { rows } = await pool.query(GET_CARS_QUERY_NEW);
+    const { rows } = await DatabaseClient.getInstance().query(
+        GET_CARS_QUERY_NEW,
+    );
 
     res.json({ message: 'Cars fetched', status: 200, data: rows });
 });
 
 router.get('/:id', async (req, res, next) => {
     const { id } = req.params;
-    const { rows } = await pool.query(GET_CAR_BY_ID_QUERY, [id]);
+    const {
+        rows,
+    } = await DatabaseClient.getInstance().query(GET_CAR_BY_ID_QUERY, [id]);
 
     if (rows.length === 0) {
         return next(
@@ -211,7 +224,11 @@ router.get('/:id', async (req, res, next) => {
 });
 
 router.get('/:id/images', async (req, res, next) => {
-    const { rows } = await pool.query(GET_CAR_IMAGES_BY_ID, [req.params.id]);
+    const {
+        rows,
+    } = await DatabaseClient.getInstance().query(GET_CAR_IMAGES_BY_ID, [
+        req.params.id,
+    ]);
 
     if (rows.length === 0) {
         return next(new createHttpError.NotFound('No image found'));
@@ -238,7 +255,10 @@ router.post('/:id/images', uploadAvatar, async (req, res, next) => {
     try {
         await uploadAvatarToS3(avatarId, req.file.buffer);
 
-        await pool.query(ADD_CAR_IMAGE, [imageURL, req.params.id]);
+        await DatabaseClient.getInstance().query(ADD_CAR_IMAGE, [
+            imageURL,
+            req.params.id,
+        ]);
 
         res.json({ message: 'Image saved', status: 200 });
     } catch (err) {
@@ -249,7 +269,10 @@ router.post('/:id/images', uploadAvatar, async (req, res, next) => {
 router.delete('/:id', async (req, res, next) => {
     const { id } = req.params;
 
-    const { rows } = await pool.query(DELETE_CAR_BY_ID, [id]);
+    const { rows } = await DatabaseClient.getInstance().query(
+        DELETE_CAR_BY_ID,
+        [id],
+    );
 
     if (rows.length === 0) {
         return next(

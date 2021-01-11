@@ -20,4 +20,4 @@ export const {
     REDIS_PASSWORD,
     FRONTEND_URL,
 } = process.env;
-export { redis } from './redis';
+export { RedisClient } from './redis';

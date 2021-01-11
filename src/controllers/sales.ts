@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import createHttpError from 'http-errors';
-import { pool } from '../config/database';
+import { DatabaseClient } from '../config/database';
 import { MARK_CAR_AS_SOLD_QUERY } from '../queries/car';
 import { ADD_CUSTOMER_QUERY } from '../queries/customer';
 import {
@@ -15,7 +15,9 @@ import {
 const router = Router();
 
 router.get('/invoices', async (req, res) => {
-    const { rows } = await pool.query(GET_INVOICES_QUERY);
+    const { rows } = await DatabaseClient.getInstance().query(
+        GET_INVOICES_QUERY,
+    );
 
     res.json({ message: 'Invoices fetched', status: 200, data: rows });
 });
@@ -24,7 +26,9 @@ router.post('/invoices', async (req, res) => {
     const { serial_number, price } = req.body;
 
     try {
-        const { rows } = await pool.query(ADD_INVOICE_QUERY, [
+        const {
+            rows,
+        } = await DatabaseClient.getInstance().query(ADD_INVOICE_QUERY, [
             serial_number,
             price,
         ]);
@@ -40,7 +44,9 @@ router.post('/invoices', async (req, res) => {
 
 router.get('/invoices/:id', async (req, res, next) => {
     const { id } = req.params;
-    const { rows } = await pool.query(GET_INVOICE_BY_ID_QUERY, [id]);
+    const {
+        rows,
+    } = await DatabaseClient.getInstance().query(GET_INVOICE_BY_ID_QUERY, [id]);
 
     if (rows.length === 0) {
         return next(
@@ -56,13 +62,17 @@ router.get('/invoices/:id', async (req, res, next) => {
 });
 
 router.get('/', async (req, res) => {
-    const { rows } = await pool.query(GET_SALES_QUERY);
+    const { rows } = await DatabaseClient.getInstance().query(GET_SALES_QUERY);
 
     res.json({ message: 'Sales fetched', status: 200, data: rows });
 });
 
 router.get('/:id', async (req, res, next) => {
-    const { rows } = await pool.query(GET_SALE_BY_ID_QUERY, [req.params.id]);
+    const {
+        rows,
+    } = await DatabaseClient.getInstance().query(GET_SALE_BY_ID_QUERY, [
+        req.params.id,
+    ]);
 
     if (rows.length === 0) {
         return next(
@@ -79,7 +89,7 @@ router.get('/:id', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
     try {
-        await pool.query('BEGIN');
+        await DatabaseClient.getInstance().query('BEGIN');
         const {
             first_name,
             last_name,
@@ -93,32 +103,36 @@ router.post('/', async (req, res, next) => {
 
         /* CREATE THE CUSTOMER */
 
-        const customerRes = await pool.query(ADD_CUSTOMER_QUERY, [
-            first_name,
-            last_name,
-            birth_date,
-        ]);
+        const customerRes = await DatabaseClient.getInstance().query(
+            ADD_CUSTOMER_QUERY,
+            [first_name, last_name, birth_date],
+        );
 
         /* CREATE THE INVOICE */
 
-        const invoiceRes = await pool.query(ADD_INVOICE_QUERY, [
-            serial_number,
-            price,
-        ]);
+        const invoiceRes = await DatabaseClient.getInstance().query(
+            ADD_INVOICE_QUERY,
+            [serial_number, price],
+        );
 
         /* CREATE THE SALE */
 
-        const saleRes = await pool.query(ADD_SALE_QUERY, [
-            customerRes.rows[0].id,
-            personel_id,
+        const saleRes = await DatabaseClient.getInstance().query(
+            ADD_SALE_QUERY,
+            [
+                customerRes.rows[0].id,
+                personel_id,
+                car_id,
+                invoiceRes.rows[0].id,
+                sale_date,
+            ],
+        );
+
+        await DatabaseClient.getInstance().query(MARK_CAR_AS_SOLD_QUERY, [
             car_id,
-            invoiceRes.rows[0].id,
-            sale_date,
         ]);
 
-        await pool.query(MARK_CAR_AS_SOLD_QUERY, [car_id]);
-
-        await pool.query('COMMIT');
+        await DatabaseClient.getInstance().query('COMMIT');
 
         res.status(201).json({
             message: 'New sale created',
@@ -126,7 +140,7 @@ router.post('/', async (req, res, next) => {
             data: saleRes.rows,
         });
     } catch (err) {
-        await pool.query('ROLLBACK');
+        await DatabaseClient.getInstance().query('ROLLBACK');
         next(new createHttpError.BadRequest('Invalid values to create a sale'));
     }
 });

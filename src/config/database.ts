@@ -7,18 +7,34 @@ import {
     POSTGRES_DB,
 } from '.';
 
-const pool = new Pool({
-    user: POSTGRES_USER,
-    host: POSTGRES_HOST,
-    database: POSTGRES_DB,
-    password: POSTGRES_PASSWORD,
-    port: parseInt(POSTGRES_PORT, 10),
-});
+class DatabaseClient {
+    private static pool: Pool;
 
-pool.once('connect', () => {
-    console.log(`🐘 Connected to db`);
-});
+    static getInstance(): Pool {
+        if (!DatabaseClient.pool) {
+            DatabaseClient.pool = new Pool({
+                user: POSTGRES_USER,
+                host: POSTGRES_HOST,
+                database: POSTGRES_DB,
+                password: POSTGRES_PASSWORD,
+                port: parseInt(POSTGRES_PORT, 10),
+            });
 
-pool.query('SELECT 1');
+            DatabaseClient.pool.once('connect', () => {
+                console.log(`🐘 Connected to db`.blue);
+            });
 
-export { pool };
+            DatabaseClient.pool.once('error', (err) => {
+                console.log(`Error occurred connecting db: ${err}`.red);
+            });
+
+            DatabaseClient.pool.query('SELECT 1');
+        }
+
+        return DatabaseClient.pool;
+    }
+}
+
+DatabaseClient.getInstance();
+
+export { DatabaseClient };

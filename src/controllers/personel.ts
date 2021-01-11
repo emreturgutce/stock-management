@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { pool } from '../config/database';
+import { DatabaseClient } from '../config/database';
 import {
     ADD_PERSONEL_QUERY,
     GET_PERSONELS_QUERY,
@@ -25,7 +25,12 @@ router.post(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { email, password } = req.body;
-            const { rows } = await pool.query(GET_PERSONEL_BY_EMAIL, [email]);
+            const {
+                rows,
+            } = await DatabaseClient.getInstance().query(
+                GET_PERSONEL_BY_EMAIL,
+                [email],
+            );
             const isAuth = await bcrypt.compare(password, rows[0].password);
 
             if (!isAuth) {
@@ -65,7 +70,9 @@ router.get('/logout', auth, async (req, res, next) => {
 });
 
 router.get('/', auth, async (req, res) => {
-    const { rows } = await pool.query(GET_PERSONELS_QUERY);
+    const { rows } = await DatabaseClient.getInstance().query(
+        GET_PERSONELS_QUERY,
+    );
 
     res.json({
         message: 'Personels fetched',
@@ -75,7 +82,9 @@ router.get('/', auth, async (req, res) => {
 });
 
 router.get('/current', auth, async (req, res, next) => {
-    const { rows } = await pool.query(GET_PERSONEL_BY_ID, [
+    const {
+        rows,
+    } = await DatabaseClient.getInstance().query(GET_PERSONEL_BY_ID, [
         jwt.decode((req.session as any).userId),
     ]);
 
@@ -100,7 +109,9 @@ router.post('/', rateLimiter, async (req, res, next) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const { rows } = await pool.query(ADD_PERSONEL_QUERY, [
+        const {
+            rows,
+        } = await DatabaseClient.getInstance().query(ADD_PERSONEL_QUERY, [
             first_name,
             last_name,
             birth_date,

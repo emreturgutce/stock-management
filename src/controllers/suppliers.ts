@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import createHttpError from 'http-errors';
-import { pool } from '../config/database';
+import { DatabaseClient } from '../config/database';
 import {
     ADD_SUPPLIER_QUERY,
     GET_SUPPLIERS_QUERY,
@@ -12,7 +12,9 @@ const router = Router();
 router.post('/', async (req, res, next) => {
     try {
         const { first_name, last_name, birth_date } = req.body;
-        const { rows } = await pool.query(ADD_SUPPLIER_QUERY, [
+        const {
+            rows,
+        } = await DatabaseClient.getInstance().query(ADD_SUPPLIER_QUERY, [
             first_name,
             last_name,
             birth_date,
@@ -33,7 +35,9 @@ router.post('/', async (req, res, next) => {
 });
 
 router.get('/', async (req, res) => {
-    const { rows } = await pool.query(GET_SUPPLIERS_QUERY);
+    const { rows } = await DatabaseClient.getInstance().query(
+        GET_SUPPLIERS_QUERY,
+    );
 
     res.json({
         message: 'Suppliers fetched',
@@ -44,7 +48,11 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res, next) => {
     const { id } = req.params;
-    const { rows } = await pool.query(GET_SUPPLIER_BY_ID_QUERY, [id]);
+    const {
+        rows,
+    } = await DatabaseClient.getInstance().query(GET_SUPPLIER_BY_ID_QUERY, [
+        id,
+    ]);
 
     if (rows.length === 0) {
         return next(

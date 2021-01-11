@@ -1,19 +1,30 @@
 import Redis, { Redis as RedisType } from 'ioredis';
 import { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } from '.';
 
-let redis: RedisType;
+class RedisClient {
+    private static client: RedisType;
 
-try {
-    redis = new Redis({
-        host: REDIS_HOST,
-        password: REDIS_PASSWORD,
-        port: parseInt(REDIS_PORT!, 10),
-    });
+    static getInstance(): RedisType {
+        if (!RedisClient.client) {
+            RedisClient.client = new Redis({
+                host: REDIS_HOST,
+                password: REDIS_PASSWORD,
+                port: parseInt(REDIS_PORT, 10),
+            });
 
-    console.log(`👹  Connected to Redis`);
-} catch (err) {
-    console.error(`Error occurred connecting Redis:\n${err}`);
-    process.exit(1);
+            RedisClient.client.once('error', (err) => {
+                console.log(`Error occurred connecting Redis: ${err}`.red);
+            });
+
+            RedisClient.client.once('connect', () => {
+                console.log(`😈 Connected to Redis`.yellow);
+            });
+        }
+
+        return RedisClient.client;
+    }
 }
 
-export { redis };
+RedisClient.getInstance();
+
+export { RedisClient };

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import createHttpError from 'http-errors';
-import { pool } from '../config/database';
+import { DatabaseClient } from '../config/database';
 import { ADD_CUSTOMER_QUERY, GET_CUSTOMERS_QUERY } from '../queries/customer';
 
 const router = Router();
@@ -9,7 +9,9 @@ router.post('/', async (req, res, next) => {
     try {
         const { first_name, last_name, birth_date } = req.body;
 
-        const { rows } = await pool.query(ADD_CUSTOMER_QUERY, [
+        const {
+            rows,
+        } = await DatabaseClient.getInstance().query(ADD_CUSTOMER_QUERY, [
             first_name,
             last_name,
             birth_date,
@@ -30,7 +32,9 @@ router.post('/', async (req, res, next) => {
 });
 
 router.get('/', async (req, res) => {
-    const { rows } = await pool.query(GET_CUSTOMERS_QUERY);
+    const { rows } = await DatabaseClient.getInstance().query(
+        GET_CUSTOMERS_QUERY,
+    );
 
     res.json({ message: 'Customers fetched', status: 200, data: rows });
 });

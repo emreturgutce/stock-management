@@ -3,7 +3,7 @@ import createHttpError from 'http-errors';
 import jwt from 'jsonwebtoken';
 import { validate } from 'uuid';
 import { JWT_SECRET } from '../config';
-import { pool } from '../config/database';
+import { DatabaseClient } from '../config/database';
 import { CHECK_IF_PERSONEL_EXISTS_WITH_THE_ID } from '../queries/personel';
 
 export const auth = async (req: Request, res: Response, next: NextFunction) => {
@@ -29,9 +29,12 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
         }
     }
 
-    const { rows } = await pool.query(CHECK_IF_PERSONEL_EXISTS_WITH_THE_ID, [
-        userId,
-    ]);
+    const {
+        rows,
+    } = await DatabaseClient.getInstance().query(
+        CHECK_IF_PERSONEL_EXISTS_WITH_THE_ID,
+        [userId],
+    );
 
     if (rows.length === 0) {
         return next(
