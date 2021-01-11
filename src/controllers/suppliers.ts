@@ -34,39 +34,47 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-router.get('/', async (req, res) => {
-    const { rows } = await DatabaseClient.getInstance().query(
-        GET_SUPPLIERS_QUERY,
-    );
+router.get('/', async (req, res, next) => {
+    try {
+        const { rows } = await DatabaseClient.getInstance().query(
+            GET_SUPPLIERS_QUERY,
+        );
 
-    res.json({
-        message: 'Suppliers fetched',
-        status: 200,
-        data: rows,
-    });
+        res.json({
+            message: 'Suppliers fetched',
+            status: 200,
+            data: rows,
+        });
+    } catch (error) {
+        next(new createHttpError.InternalServerError('Internal Server Error'));
+    }
 });
 
 router.get('/:id', async (req, res, next) => {
-    const { id } = req.params;
-    const {
-        rows,
-    } = await DatabaseClient.getInstance().query(GET_SUPPLIER_BY_ID_QUERY, [
-        id,
-    ]);
+    try {
+        const { id } = req.params;
+        const {
+            rows,
+        } = await DatabaseClient.getInstance().query(GET_SUPPLIER_BY_ID_QUERY, [
+            id,
+        ]);
 
-    if (rows.length === 0) {
-        return next(
-            new createHttpError.NotFound(
-                'Supplier not found with the given id',
-            ),
-        );
+        if (rows.length === 0) {
+            return next(
+                new createHttpError.NotFound(
+                    'Supplier not found with the given id',
+                ),
+            );
+        }
+
+        res.json({
+            message: 'Supplier fetched with the given id',
+            status: 200,
+            data: rows,
+        });
+    } catch (error) {
+        next(new createHttpError.BadRequest('Bad Request'));
     }
-
-    res.json({
-        message: 'Supplier fetched with the given id',
-        status: 200,
-        data: rows,
-    });
 });
 
 export { router as supplierRouter };

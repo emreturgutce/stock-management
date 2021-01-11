@@ -14,18 +14,21 @@ import {
 
 const router = Router();
 
-router.get('/invoices', async (req, res) => {
-    const { rows } = await DatabaseClient.getInstance().query(
-        GET_INVOICES_QUERY,
-    );
+router.get('/invoices', async (req, res, next) => {
+    try {
+        const { rows } = await DatabaseClient.getInstance().query(
+            GET_INVOICES_QUERY,
+        );
 
-    res.json({ message: 'Invoices fetched', status: 200, data: rows });
+        res.json({ message: 'Invoices fetched', status: 200, data: rows });
+    } catch (error) {
+        next(new createHttpError.InternalServerError('Internal Server Error'));
+    }
 });
 
-router.post('/invoices', async (req, res) => {
-    const { serial_number, price } = req.body;
-
+router.post('/invoices', async (req, res, next) => {
     try {
+        const { serial_number, price } = req.body;
         const {
             rows,
         } = await DatabaseClient.getInstance().query(ADD_INVOICE_QUERY, [
@@ -38,53 +41,72 @@ router.post('/invoices', async (req, res) => {
             data: rows,
         });
     } catch (err) {
-        res.json({ error: err });
+        next(new createHttpError.BadRequest('Bad Request'));
     }
 });
 
 router.get('/invoices/:id', async (req, res, next) => {
-    const { id } = req.params;
-    const {
-        rows,
-    } = await DatabaseClient.getInstance().query(GET_INVOICE_BY_ID_QUERY, [id]);
+    try {
+        const {
+            rows,
+        } = await DatabaseClient.getInstance().query(GET_INVOICE_BY_ID_QUERY, [
+            req.params.id,
+        ]);
 
-    if (rows.length === 0) {
-        return next(
-            new createHttpError.NotFound('Invoice not found with the given id'),
-        );
+        if (rows.length === 0) {
+            return next(
+                new createHttpError.NotFound(
+                    'Invoice not found with the given id',
+                ),
+            );
+        }
+
+        res.json({
+            message: 'Invoice fetched with the given id',
+            status: 200,
+            data: rows,
+        });
+    } catch (error) {
+        next(new createHttpError.BadRequest('Bad Request'));
     }
-
-    res.json({
-        message: 'Invoice fetched with the given id',
-        status: 200,
-        data: rows,
-    });
 });
 
-router.get('/', async (req, res) => {
-    const { rows } = await DatabaseClient.getInstance().query(GET_SALES_QUERY);
+router.get('/', async (req, res, next) => {
+    try {
+        const { rows } = await DatabaseClient.getInstance().query(
+            GET_SALES_QUERY,
+        );
 
-    res.json({ message: 'Sales fetched', status: 200, data: rows });
+        res.json({ message: 'Sales fetched', status: 200, data: rows });
+    } catch (error) {
+        next(new createHttpError.InternalServerError('Internal Server Error'));
+    }
 });
 
 router.get('/:id', async (req, res, next) => {
-    const {
-        rows,
-    } = await DatabaseClient.getInstance().query(GET_SALE_BY_ID_QUERY, [
-        req.params.id,
-    ]);
+    try {
+        const {
+            rows,
+        } = await DatabaseClient.getInstance().query(GET_SALE_BY_ID_QUERY, [
+            req.params.id,
+        ]);
 
-    if (rows.length === 0) {
-        return next(
-            new createHttpError.NotFound('Sale not found with the given id'),
-        );
+        if (rows.length === 0) {
+            return next(
+                new createHttpError.NotFound(
+                    'Sale not found with the given id',
+                ),
+            );
+        }
+
+        res.json({
+            message: 'Sale fetched with the given id',
+            status: 200,
+            data: rows,
+        });
+    } catch (error) {
+        next(new createHttpError.InternalServerError('Internal Server Error'));
     }
-
-    res.json({
-        message: 'Sale fetched with the given id',
-        status: 200,
-        data: rows,
-    });
 });
 
 router.post('/', async (req, res, next) => {

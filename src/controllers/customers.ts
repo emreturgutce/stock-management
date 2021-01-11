@@ -31,12 +31,16 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-router.get('/', async (req, res) => {
-    const { rows } = await DatabaseClient.getInstance().query(
-        GET_CUSTOMERS_QUERY,
-    );
+router.get('/', async (req, res, next) => {
+    try {
+        const { rows } = await DatabaseClient.getInstance().query(
+            GET_CUSTOMERS_QUERY,
+        );
 
-    res.json({ message: 'Customers fetched', status: 200, data: rows });
+        res.json({ message: 'Customers fetched', status: 200, data: rows });
+    } catch (error) {
+        next(new createHttpError.InternalServerError('Internal Server Error'));
+    }
 });
 
 export { router as customerRouter };

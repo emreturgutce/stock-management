@@ -65,30 +65,38 @@ router.get('/logout', auth, async (req, res, next) => {
     res.status(204).send();
 });
 
-router.get('/', auth, async (req, res) => {
-    const { rows } = await DatabaseClient.getInstance().query(
-        GET_PERSONELS_QUERY,
-    );
+router.get('/', auth, async (req, res, next) => {
+    try {
+        const { rows } = await DatabaseClient.getInstance().query(
+            GET_PERSONELS_QUERY,
+        );
 
-    res.json({
-        message: 'Personels fetched',
-        status: 200,
-        data: rows,
-    });
+        res.json({
+            message: 'Personels fetched',
+            status: 200,
+            data: rows,
+        });
+    } catch (error) {
+        next(new createHttpError.InternalServerError('Internal Server Error'));
+    }
 });
 
 router.get('/current', auth, async (req, res, next) => {
-    const {
-        rows,
-    } = await DatabaseClient.getInstance().query(GET_PERSONEL_BY_ID, [
-        jwt.decode((req.session as any).userId),
-    ]);
+    try {
+        const {
+            rows,
+        } = await DatabaseClient.getInstance().query(GET_PERSONEL_BY_ID, [
+            jwt.decode((req.session as any).userId),
+        ]);
 
-    res.json({
-        message: 'Personel fetched with the given id',
-        status: 200,
-        data: rows,
-    });
+        res.json({
+            message: 'Personel fetched with the given id',
+            status: 200,
+            data: rows,
+        });
+    } catch (error) {
+        next(new createHttpError.InternalServerError('Internal Server Error'));
+    }
 });
 
 router.post('/', rateLimiter, async (req, res, next) => {
