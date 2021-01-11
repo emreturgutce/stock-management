@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
 import { v4 as uuid } from 'uuid';
 import { AWS_S3_BUCKET, DatabaseClient } from '../config';
+import { UniqueKeyConstaintError } from '../errors/unique-key-constraint-error';
 import {
     uploadAvatar,
     validateCarColor,
@@ -28,18 +29,28 @@ router.post(
     '/colors',
     validateCarColor,
     async (req: Request, res: Response, next: NextFunction) => {
-        const { name } = req.body;
-        const {
-            rows,
-        } = await DatabaseClient.getInstance().query(ADD_CAR_COLOR_QUERY, [
-            name.toUpperCase(),
-        ]);
+        try {
+            const {
+                rows,
+            } = await DatabaseClient.getInstance().query(ADD_CAR_COLOR_QUERY, [
+                req.body.name,
+            ]);
 
-        res.status(201).json({
-            message: 'New car color added',
-            status: 201,
-            data: rows,
-        });
+            res.status(201).json({
+                message: 'New car color added',
+                status: 201,
+                data: rows,
+            });
+        } catch (error) {
+            if (
+                error.message ===
+                'duplicate key value violates unique constraint "car_colors_name_key"'
+            ) {
+                return next(new UniqueKeyConstaintError());
+            }
+
+            next(new createHttpError.BadRequest(error.message));
+        }
     },
 );
 
@@ -55,19 +66,29 @@ router.post(
     '/manufacturers',
     validateCarManufacturer,
     async (req: Request, res: Response, next: NextFunction) => {
-        const { name } = req.body;
-        const {
-            rows,
-        } = await DatabaseClient.getInstance().query(
-            ADD_CAR_MANUFACTURER_QUERY,
-            [name.toUpperCase()],
-        );
+        try {
+            const {
+                rows,
+            } = await DatabaseClient.getInstance().query(
+                ADD_CAR_MANUFACTURER_QUERY,
+                [req.body.name],
+            );
 
-        res.status(201).json({
-            message: 'New car manifacturer added',
-            status: 201,
-            data: rows,
-        });
+            res.status(201).json({
+                message: 'New car manifacturer added',
+                status: 201,
+                data: rows,
+            });
+        } catch (error) {
+            if (
+                error.message ===
+                'duplicate key value violates unique constraint "car_manufacturers_name_key"'
+            ) {
+                return next(new UniqueKeyConstaintError());
+            }
+
+            next(new createHttpError.BadRequest(error.message));
+        }
     },
 );
 

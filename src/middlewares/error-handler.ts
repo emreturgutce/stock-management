@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { HttpError } from 'http-errors';
+import { CustomError } from '../errors/custom-error';
 
 export const errorHandler = (
     error: Error,
@@ -11,6 +12,13 @@ export const errorHandler = (
         return response
             .status(error.statusCode)
             .json({ message: error.message, status: error.statusCode });
+    }
+
+    if (error instanceof CustomError) {
+        return response.status(error.statusCode).json({
+            message: error.reason,
+            status: error.statusCode,
+        });
     }
 
     response.status(500).json({ error: 'Internal Server Error', status: 500 });
