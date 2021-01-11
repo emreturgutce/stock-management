@@ -2,7 +2,7 @@
     "ts-node": {
         "files": true
     },
-    "files": ["src/app.ts", "src/typings/custom.d.ts"],
+    "files": ["src/typings/custom.d.ts"],
     "compilerOptions": {
         /* Visit https://aka.ms/tsconfig.json to read more about this file */
 

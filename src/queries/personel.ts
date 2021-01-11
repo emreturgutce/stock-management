@@ -24,3 +24,6 @@ export const GET_PERSONEL_BY_ID = `
 export const CHECK_IF_PERSONEL_EXISTS_WITH_THE_ID = `
     SELECT 1 FROM personels WHERE id = $1;
 `;
+export const DELETE_PERSONELS = `
+    DELETE FROM personels;
+`;
