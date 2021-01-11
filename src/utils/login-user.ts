@@ -13,6 +13,6 @@ export const loginUser = async (user: User) => {
 };
 
 export const user: User = {
-    email: 'al2i@veli.com',
+    email: 'emreturgut@mail.com',
     password: '123456',
 };
