@@ -54,12 +54,16 @@ router.post(
     },
 );
 
-router.get('/colors', async (req, res) => {
-    const { rows } = await DatabaseClient.getInstance().query(
-        GET_CAR_COLORS_QUERY,
-    );
+router.get('/colors', async (req, res, next) => {
+    try {
+        const { rows } = await DatabaseClient.getInstance().query(
+            GET_CAR_COLORS_QUERY,
+        );
 
-    res.json({ message: 'Car colors fetched', status: 200, data: rows });
+        res.json({ message: 'Car colors fetched', status: 200, data: rows });
+    } catch (error) {
+        next(new createHttpError.InternalServerError('Internal Server Error'));
+    }
 });
 
 router.post(
@@ -92,12 +96,20 @@ router.post(
     },
 );
 
-router.get('/manufacturers', async (req, res) => {
-    const { rows } = await DatabaseClient.getInstance().query(
-        GET_CAR_MANUFACTURER_QUERY,
-    );
+router.get('/manufacturers', async (req, res, next) => {
+    try {
+        const { rows } = await DatabaseClient.getInstance().query(
+            GET_CAR_MANUFACTURER_QUERY,
+        );
 
-    res.json({ message: 'Car manufacturers fetched', status: 200, data: rows });
+        res.json({
+            message: 'Car manufacturers fetched',
+            status: 200,
+            data: rows,
+        });
+    } catch (error) {
+        next(new createHttpError.InternalServerError('Internal Server Error'));
+    }
 });
 
 router.post('/', uploadAvatar, async (req, res, next) => {
@@ -214,49 +226,63 @@ router.put('/:id', async (req, res, next) => {
     }
 });
 
-router.get('/', async (req, res) => {
-    const { rows } = await DatabaseClient.getInstance().query(
-        GET_CARS_QUERY_NEW,
-    );
+router.get('/', async (req, res, next) => {
+    try {
+        const { rows } = await DatabaseClient.getInstance().query(
+            GET_CARS_QUERY_NEW,
+        );
 
-    res.json({ message: 'Cars fetched', status: 200, data: rows });
+        res.json({ message: 'Cars fetched', status: 200, data: rows });
+    } catch (error) {
+        next(new createHttpError.InternalServerError('Internal Server Error'));
+    }
 });
 
 router.get('/:id', async (req, res, next) => {
-    const { id } = req.params;
-    const {
-        rows,
-    } = await DatabaseClient.getInstance().query(GET_CAR_BY_ID_QUERY, [id]);
+    try {
+        const { id } = req.params;
+        const {
+            rows,
+        } = await DatabaseClient.getInstance().query(GET_CAR_BY_ID_QUERY, [id]);
 
-    if (rows.length === 0) {
-        return next(
-            new createHttpError.NotFound(`Car not found with the id of ${id}`),
-        );
+        if (rows.length === 0) {
+            return next(
+                new createHttpError.NotFound(
+                    `Car not found with the id of ${id}`,
+                ),
+            );
+        }
+
+        res.json({
+            message: 'Car fetched with the given id.',
+            status: 200,
+            data: rows,
+        });
+    } catch (error) {
+        next(new createHttpError.InternalServerError('Internal Server Error'));
     }
-
-    res.json({
-        message: 'Car fetched with the given id.',
-        status: 200,
-        data: rows,
-    });
 });
 
 router.get('/:id/images', async (req, res, next) => {
-    const {
-        rows,
-    } = await DatabaseClient.getInstance().query(GET_CAR_IMAGES_BY_ID, [
-        req.params.id,
-    ]);
+    try {
+        const {
+            rows,
+        } = await DatabaseClient.getInstance().query(GET_CAR_IMAGES_BY_ID, [
+            req.params.id,
+        ]);
 
-    if (rows.length === 0) {
-        return next(new createHttpError.NotFound('No image found'));
+        if (rows.length === 0) {
+            return next(new createHttpError.NotFound('No image found'));
+        }
+
+        res.json({
+            message: 'All car images fetched with the given id.',
+            status: 200,
+            data: rows,
+        });
+    } catch (error) {
+        next(new createHttpError.InternalServerError('Internal Server Error'));
     }
-
-    res.json({
-        message: 'All car images fetched with the given id.',
-        status: 200,
-        data: rows,
-    });
 });
 
 router.post('/:id/images', uploadAvatar, async (req, res, next) => {
