@@ -206,46 +206,60 @@ router.post(
     },
 );
 
-router.put('/:id', async (req, res, next) => {
-    try {
-        const {
-            title,
-            sale_price,
-            purchase_price,
-            description,
-            model,
-            year,
-            is_new,
-            enter_date,
-            supplier_id,
-            car_manufacturer_id,
-            car_color_code,
-        } = req.body;
+router.put(
+    '/:id',
+    validateCar,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const {
+                title,
+                sale_price,
+                purchase_price,
+                description,
+                model,
+                year,
+                is_new,
+                enter_date,
+                supplier_id,
+                car_manufacturer_id,
+                car_color_code,
+            } = req.body;
 
-        await DatabaseClient.getInstance().query(UPDATE_CAR_BY_ID, [
-            title,
-            description,
-            sale_price,
-            purchase_price,
-            enter_date,
-            year,
-            model,
-            is_new,
-            car_color_code,
-            car_manufacturer_id,
-            supplier_id,
-            req.params.id,
-        ]);
+            await DatabaseClient.getInstance().query(UPDATE_CAR_BY_ID, [
+                title,
+                description,
+                sale_price,
+                purchase_price,
+                enter_date,
+                year,
+                model,
+                is_new,
+                car_color_code,
+                car_manufacturer_id,
+                supplier_id,
+                req.params.id,
+            ]);
 
-        res.status(204).send();
-    } catch (err) {
-        next(
-            new createHttpError.BadRequest(
-                'Invalid credentials to update a car.',
-            ),
-        );
-    }
-});
+            res.status(204).send();
+        } catch (error) {
+            if (
+                error.message.includes(
+                    'duplicate key value violates unique constraint',
+                )
+            ) {
+                return next(new UniqueKeyConstaintError());
+            } else if (
+                error.message.includes('violates foreign key constraint')
+            ) {
+                return next(new ForeignKeyConstaintError());
+            } else if (error.message.includes('invalid input syntax')) {
+                return next(new createHttpError.BadRequest('Invalid input'));
+            }
+
+            next(new createHttpError.InternalServerError());
+        }
+    },
+);
 
 router.get('/', async (req, res, next) => {
     try {
@@ -306,30 +320,34 @@ router.get('/:id/images', async (req, res, next) => {
     }
 });
 
-router.post('/:id/images', uploadAvatar, async (req, res, next) => {
-    if (!req.file) {
-        return next(new createHttpError.BadRequest('Please upload a file'));
-    }
+router.post(
+    '/:id/images',
+    uploadAvatar,
+    async (req: Request, res: Response, next: NextFunction) => {
+        if (!req.file) {
+            return next(new createHttpError.BadRequest('Please upload a file'));
+        }
 
-    const extension = req.file.originalname.split('.')[1];
+        const extension = req.file.originalname.split('.')[1];
 
-    const avatarId = `${uuid()}.${extension}`;
+        const avatarId = `${uuid()}.${extension}`;
 
-    const imageURL = `https://${AWS_S3_BUCKET}.s3-eu-west-1.amazonaws.com/${avatarId}`;
+        const imageURL = `https://${AWS_S3_BUCKET}.s3-eu-west-1.amazonaws.com/${avatarId}`;
 
-    try {
-        await uploadAvatarToS3(avatarId, req.file.buffer);
+        try {
+            await uploadAvatarToS3(avatarId, req.file.buffer);
 
-        await DatabaseClient.getInstance().query(ADD_CAR_IMAGE, [
-            imageURL,
-            req.params.id,
-        ]);
+            await DatabaseClient.getInstance().query(ADD_CAR_IMAGE, [
+                imageURL,
+                req.params.id,
+            ]);
 
-        res.json({ message: 'Image saved', status: 200 });
-    } catch (err) {
-        next(new createHttpError.BadRequest('Not valid image'));
-    }
-});
+            res.json({ message: 'Image saved', status: 200 });
+        } catch (err) {
+            next(new createHttpError.BadRequest('Not valid image'));
+        }
+    },
+);
 
 router.delete('/:id', async (req, res, next) => {
     const { id } = req.params;
