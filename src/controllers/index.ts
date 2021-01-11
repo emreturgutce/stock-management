@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { auth, errorHandler, notFound } from '../middlewares';
 import { carRouter } from './cars';
 import { customerRouter } from './customers';
-import { personelRouter } from './personel';
+import { personelRouter } from './personels';
 import { saleRouter } from './sales';
 import { supplierRouter } from './suppliers';
 
