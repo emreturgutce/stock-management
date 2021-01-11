@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { RateLimiterRedis } from 'rate-limiter-flexible';
 import { redis } from '../config';
+import { RATE_LIMIT, RATE_LIMIT_PREFIX, RATE_LIMIT_TIME } from '../constants';
 
 const rateLimiterRedis = new RateLimiterRedis({
     storeClient: redis,
-    keyPrefix: 'ratelimit',
-    points: 1000,
-    duration: 60,
+    keyPrefix: RATE_LIMIT_PREFIX,
+    points: RATE_LIMIT,
+    duration: RATE_LIMIT_TIME,
 });
 
 export const rateLimiter = async (
