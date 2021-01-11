@@ -8,6 +8,7 @@ import {
     validateCarColor,
     validateCarManufacturer,
     validateCar,
+    validateUUID,
 } from '../middlewares';
 import {
     ADD_CAR_COLOR_QUERY,
@@ -207,6 +208,7 @@ router.post(
 
 router.put(
     '/:id',
+    validateUUID,
     validateCar,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -272,55 +274,74 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-router.get('/:id', async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const {
-            rows,
-        } = await DatabaseClient.getInstance().query(GET_CAR_BY_ID_QUERY, [id]);
+router.get(
+    '/:id',
+    validateUUID,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id } = req.params;
+            const {
+                rows,
+            } = await DatabaseClient.getInstance().query(GET_CAR_BY_ID_QUERY, [
+                id,
+            ]);
 
-        if (rows.length === 0) {
-            return next(
-                new createHttpError.NotFound(
-                    `Car not found with the id of ${id}`,
+            if (rows.length === 0) {
+                return next(
+                    new createHttpError.NotFound(
+                        `Car not found with the id of ${id}`,
+                    ),
+                );
+            }
+
+            res.json({
+                message: 'Car fetched with the given id.',
+                status: 200,
+                data: rows,
+            });
+        } catch (error) {
+            next(
+                new createHttpError.InternalServerError(
+                    'Internal Server Error',
                 ),
             );
         }
+    },
+);
 
-        res.json({
-            message: 'Car fetched with the given id.',
-            status: 200,
-            data: rows,
-        });
-    } catch (error) {
-        next(new createHttpError.InternalServerError('Internal Server Error'));
-    }
-});
+router.get(
+    '/:id/images',
+    validateUUID,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const {
+                rows,
+            } = await DatabaseClient.getInstance().query(GET_CAR_IMAGES_BY_ID, [
+                req.params.id,
+            ]);
 
-router.get('/:id/images', async (req, res, next) => {
-    try {
-        const {
-            rows,
-        } = await DatabaseClient.getInstance().query(GET_CAR_IMAGES_BY_ID, [
-            req.params.id,
-        ]);
+            if (rows.length === 0) {
+                return next(new createHttpError.NotFound('No image found'));
+            }
 
-        if (rows.length === 0) {
-            return next(new createHttpError.NotFound('No image found'));
+            res.json({
+                message: 'All car images fetched with the given id.',
+                status: 200,
+                data: rows,
+            });
+        } catch (error) {
+            next(
+                new createHttpError.InternalServerError(
+                    'Internal Server Error',
+                ),
+            );
         }
-
-        res.json({
-            message: 'All car images fetched with the given id.',
-            status: 200,
-            data: rows,
-        });
-    } catch (error) {
-        next(new createHttpError.InternalServerError('Internal Server Error'));
-    }
-});
+    },
+);
 
 router.post(
     '/:id/images',
+    validateUUID,
     uploadAvatar,
     async (req: Request, res: Response, next: NextFunction) => {
         if (!req.file) {
@@ -348,30 +369,40 @@ router.post(
     },
 );
 
-router.delete('/:id', async (req, res, next) => {
-    try {
-        const { id } = req.params;
+router.delete(
+    '/:id',
+    validateUUID,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id } = req.params;
 
-        const {
-            rows,
-        } = await DatabaseClient.getInstance().query(DELETE_CAR_BY_ID, [id]);
+            const {
+                rows,
+            } = await DatabaseClient.getInstance().query(DELETE_CAR_BY_ID, [
+                id,
+            ]);
 
-        if (rows.length === 0) {
-            return next(
-                new createHttpError.NotFound(
-                    `Car not found with the id of ${id}`,
+            if (rows.length === 0) {
+                return next(
+                    new createHttpError.NotFound(
+                        `Car not found with the id of ${id}`,
+                    ),
+                );
+            }
+
+            res.json({
+                message: 'Car deleted with the given id.',
+                status: 200,
+                data: rows,
+            });
+        } catch (error) {
+            next(
+                new createHttpError.InternalServerError(
+                    'Internal Server Error',
                 ),
             );
         }
-
-        res.json({
-            message: 'Car deleted with the given id.',
-            status: 200,
-            data: rows,
-        });
-    } catch (error) {
-        next(new createHttpError.InternalServerError('Internal Server Error'));
-    }
-});
+    },
+);
 
 export { router as carRouter };

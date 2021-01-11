@@ -1,6 +1,7 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
 import { DatabaseClient } from '../config';
+import { validateUUID } from '../middlewares';
 import {
     ADD_INVOICE_QUERY,
     ADD_SALE_QUERY,
@@ -45,31 +46,36 @@ router.post('/invoices', async (req, res, next) => {
     }
 });
 
-router.get('/invoices/:id', async (req, res, next) => {
-    try {
-        const {
-            rows,
-        } = await DatabaseClient.getInstance().query(GET_INVOICE_BY_ID_QUERY, [
-            req.params.id,
-        ]);
-
-        if (rows.length === 0) {
-            return next(
-                new createHttpError.NotFound(
-                    'Invoice not found with the given id',
-                ),
+router.get(
+    '/invoices/:id',
+    validateUUID,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const {
+                rows,
+            } = await DatabaseClient.getInstance().query(
+                GET_INVOICE_BY_ID_QUERY,
+                [req.params.id],
             );
-        }
 
-        res.json({
-            message: 'Invoice fetched with the given id',
-            status: 200,
-            data: rows,
-        });
-    } catch (error) {
-        next(new createHttpError.BadRequest('Bad Request'));
-    }
-});
+            if (rows.length === 0) {
+                return next(
+                    new createHttpError.NotFound(
+                        'Invoice not found with the given id',
+                    ),
+                );
+            }
+
+            res.json({
+                message: 'Invoice fetched with the given id',
+                status: 200,
+                data: rows,
+            });
+        } catch (error) {
+            next(new createHttpError.BadRequest('Bad Request'));
+        }
+    },
+);
 
 router.get('/', async (req, res, next) => {
     try {
@@ -83,31 +89,39 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-router.get('/:id', async (req, res, next) => {
-    try {
-        const {
-            rows,
-        } = await DatabaseClient.getInstance().query(GET_SALE_BY_ID_QUERY, [
-            req.params.id,
-        ]);
+router.get(
+    '/:id',
+    validateUUID,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const {
+                rows,
+            } = await DatabaseClient.getInstance().query(GET_SALE_BY_ID_QUERY, [
+                req.params.id,
+            ]);
 
-        if (rows.length === 0) {
-            return next(
-                new createHttpError.NotFound(
-                    'Sale not found with the given id',
+            if (rows.length === 0) {
+                return next(
+                    new createHttpError.NotFound(
+                        'Sale not found with the given id',
+                    ),
+                );
+            }
+
+            res.json({
+                message: 'Sale fetched with the given id',
+                status: 200,
+                data: rows,
+            });
+        } catch (error) {
+            next(
+                new createHttpError.InternalServerError(
+                    'Internal Server Error',
                 ),
             );
         }
-
-        res.json({
-            message: 'Sale fetched with the given id',
-            status: 200,
-            data: rows,
-        });
-    } catch (error) {
-        next(new createHttpError.InternalServerError('Internal Server Error'));
-    }
-});
+    },
+);
 
 router.post('/', async (req, res, next) => {
     try {
