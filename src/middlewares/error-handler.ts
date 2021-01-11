@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { HttpError } from 'http-errors';
-import { CustomError } from '../errors/custom-error';
+import { CustomError } from '../errors';
 
 export const errorHandler = (
     error: Error,

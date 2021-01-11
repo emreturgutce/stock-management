@@ -5,5 +5,6 @@ export * from './rate-limiter';
 export * from './upload-avatar';
 export * from './validate-login';
 export * from './validate-request';
+export * from './validate-car';
 export * from './validate-car-color';
 export * from './validate-car-manufacturer';

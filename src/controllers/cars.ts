@@ -2,14 +2,13 @@ import { Router, Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
 import { v4 as uuid } from 'uuid';
 import { AWS_S3_BUCKET, DatabaseClient } from '../config';
-import { ForeignKeyConstaintError } from '../errors/foreign-key-constraint-error';
-import { UniqueKeyConstaintError } from '../errors/unique-key-constraint-error';
+import { ForeignKeyConstaintError, UniqueKeyConstaintError } from '../errors';
 import {
     uploadAvatar,
     validateCarColor,
     validateCarManufacturer,
+    validateCar,
 } from '../middlewares';
-import { validateCar } from '../middlewares/validate-car';
 import {
     ADD_CAR_COLOR_QUERY,
     ADD_CAR_IMAGE,
@@ -350,24 +349,29 @@ router.post(
 );
 
 router.delete('/:id', async (req, res, next) => {
-    const { id } = req.params;
+    try {
+        const { id } = req.params;
 
-    const { rows } = await DatabaseClient.getInstance().query(
-        DELETE_CAR_BY_ID,
-        [id],
-    );
+        const {
+            rows,
+        } = await DatabaseClient.getInstance().query(DELETE_CAR_BY_ID, [id]);
 
-    if (rows.length === 0) {
-        return next(
-            new createHttpError.NotFound(`Car not found with the id of ${id}`),
-        );
+        if (rows.length === 0) {
+            return next(
+                new createHttpError.NotFound(
+                    `Car not found with the id of ${id}`,
+                ),
+            );
+        }
+
+        res.json({
+            message: 'Car deleted with the given id.',
+            status: 200,
+            data: rows,
+        });
+    } catch (error) {
+        next(new createHttpError.InternalServerError('Internal Server Error'));
     }
-
-    res.json({
-        message: 'Car deleted with the given id.',
-        status: 200,
-        data: rows,
-    });
 });
 
 export { router as carRouter };
