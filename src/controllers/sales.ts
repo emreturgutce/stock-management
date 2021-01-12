@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
 import { DatabaseClient } from '../config';
-import { validateUUID } from '../middlewares';
+import { validateSale, validateUUID } from '../middlewares';
 import {
     ADD_INVOICE_QUERY,
     ADD_SALE_QUERY,
@@ -27,6 +27,9 @@ router.get('/invoices', async (req, res, next) => {
     }
 });
 
+/*
+ *  NOT IN USE
+ */
 router.post('/invoices', async (req, res, next) => {
     try {
         const { serial_number, price } = req.body;
@@ -123,62 +126,70 @@ router.get(
     },
 );
 
-router.post('/', async (req, res, next) => {
-    try {
-        await DatabaseClient.getInstance().query('BEGIN');
-        const {
-            first_name,
-            last_name,
-            birth_date,
-            serial_number,
-            price,
-            personel_id,
-            car_id,
-            sale_date,
-        } = req.body;
-
-        /* CREATE THE CUSTOMER */
-
-        const customerRes = await DatabaseClient.getInstance().query(
-            ADD_CUSTOMER_QUERY,
-            [first_name, last_name, birth_date],
-        );
-
-        /* CREATE THE INVOICE */
-
-        const invoiceRes = await DatabaseClient.getInstance().query(
-            ADD_INVOICE_QUERY,
-            [serial_number, price],
-        );
-
-        /* CREATE THE SALE */
-
-        const saleRes = await DatabaseClient.getInstance().query(
-            ADD_SALE_QUERY,
-            [
-                customerRes.rows[0].id,
+router.post(
+    '/',
+    validateSale,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            await DatabaseClient.getInstance().query('BEGIN');
+            const {
+                first_name,
+                last_name,
+                birth_date,
+                serial_number,
+                price,
                 personel_id,
                 car_id,
-                invoiceRes.rows[0].id,
                 sale_date,
-            ],
-        );
+            } = req.body;
 
-        await DatabaseClient.getInstance().query(MARK_CAR_AS_SOLD_QUERY, [
-            car_id,
-        ]);
+            /* CREATE THE CUSTOMER */
 
-        await DatabaseClient.getInstance().query('COMMIT');
+            const customerRes = await DatabaseClient.getInstance().query(
+                ADD_CUSTOMER_QUERY,
+                [first_name, last_name, birth_date],
+            );
 
-        res.status(201).json({
-            message: 'New sale created',
-            status: 201,
-            data: saleRes.rows,
-        });
-    } catch (err) {
-        await DatabaseClient.getInstance().query('ROLLBACK');
-        next(new createHttpError.BadRequest('Invalid values to create a sale'));
-    }
-});
+            /* CREATE THE INVOICE */
+
+            const invoiceRes = await DatabaseClient.getInstance().query(
+                ADD_INVOICE_QUERY,
+                [serial_number, price],
+            );
+
+            /* CREATE THE SALE */
+
+            const saleRes = await DatabaseClient.getInstance().query(
+                ADD_SALE_QUERY,
+                [
+                    customerRes.rows[0].id,
+                    personel_id,
+                    car_id,
+                    invoiceRes.rows[0].id,
+                    sale_date,
+                ],
+            );
+
+            await DatabaseClient.getInstance().query(MARK_CAR_AS_SOLD_QUERY, [
+                car_id,
+            ]);
+
+            await DatabaseClient.getInstance().query('COMMIT');
+
+            res.status(201).json({
+                message: 'New sale created',
+                status: 201,
+                data: saleRes.rows,
+            });
+        } catch (err) {
+            await DatabaseClient.getInstance().query('ROLLBACK');
+            next(
+                new createHttpError.BadRequest(
+                    'Invalid values to create a sale',
+                ),
+            );
+        }
+    },
+);
 
 export { router as saleRouter };

@@ -9,5 +9,6 @@ export * from './validate-request';
 export * from './validate-car';
 export * from './validate-customer';
 export * from './validate-personel';
+export * from './validate-sale';
 export * from './validate-car-color';
 export * from './validate-car-manufacturer';
