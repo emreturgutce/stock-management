@@ -97,7 +97,7 @@ router.get('/current', auth, async (req, res, next) => {
         const {
             rows,
         } = await DatabaseClient.getInstance().query(GET_PERSONEL_BY_ID, [
-            jwt.decode((req.session as any).userId),
+            jwt.decode(req.session.userId),
         ]);
 
         res.json({
