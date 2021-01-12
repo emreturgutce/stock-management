@@ -7,5 +7,6 @@ export * from './validate-login';
 export * from './validate-uuid';
 export * from './validate-request';
 export * from './validate-car';
+export * from './validate-customer';
 export * from './validate-car-color';
 export * from './validate-car-manufacturer';

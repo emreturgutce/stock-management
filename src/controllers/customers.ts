@@ -1,11 +1,12 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
 import { DatabaseClient } from '../config';
+import { validateCustomer } from '../middlewares';
 import { ADD_CUSTOMER_QUERY, GET_CUSTOMERS_QUERY } from '../queries';
 
 const router = Router();
 
-router.post('/', async (req, res, next) => {
+router.post('/', validateCustomer, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { first_name, last_name, birth_date } = req.body;
 
