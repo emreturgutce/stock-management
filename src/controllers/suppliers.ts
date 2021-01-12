@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
 import { DatabaseClient } from '../config';
-import { validateUUID } from '../middlewares';
+import { validateSupplier, validateUUID } from '../middlewares';
 import {
     ADD_SUPPLIER_QUERY,
     GET_SUPPLIERS_QUERY,
@@ -10,30 +10,34 @@ import {
 
 const router = Router();
 
-router.post('/', async (req, res, next) => {
-    try {
-        const { first_name, last_name, birth_date } = req.body;
-        const {
-            rows,
-        } = await DatabaseClient.getInstance().query(ADD_SUPPLIER_QUERY, [
-            first_name,
-            last_name,
-            birth_date,
-        ]);
+router.post(
+    '/',
+    validateSupplier,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { first_name, last_name, birth_date } = req.body;
+            const {
+                rows,
+            } = await DatabaseClient.getInstance().query(ADD_SUPPLIER_QUERY, [
+                first_name,
+                last_name,
+                birth_date,
+            ]);
 
-        res.status(201).json({
-            message: 'New supplier created',
-            status: 201,
-            data: rows,
-        });
-    } catch (err) {
-        next(
-            new createHttpError.BadRequest(
-                'Invalid values to create a supplier.',
-            ),
-        );
-    }
-});
+            res.status(201).json({
+                message: 'New supplier created',
+                status: 201,
+                data: rows,
+            });
+        } catch (err) {
+            next(
+                new createHttpError.BadRequest(
+                    'Invalid values to create a supplier.',
+                ),
+            );
+        }
+    },
+);
 
 router.get('/', async (req, res, next) => {
     try {
