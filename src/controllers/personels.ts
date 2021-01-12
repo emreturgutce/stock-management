@@ -9,7 +9,12 @@ import {
     GET_PERSONEL_BY_EMAIL,
     GET_PERSONEL_BY_ID,
 } from '../queries';
-import { auth, rateLimiter, validateLogin } from '../middlewares';
+import {
+    auth,
+    rateLimiter,
+    validateLogin,
+    validatePersonel,
+} from '../middlewares';
 import { COOKIE_NAME } from '../constants';
 
 const router = Router();
@@ -105,44 +110,49 @@ router.get('/current', auth, async (req, res, next) => {
     }
 });
 
-router.post('/', rateLimiter, async (req, res, next) => {
-    try {
-        const {
-            first_name,
-            last_name,
-            birth_date,
-            email,
-            password,
-            gender,
-            hire_date,
-        } = req.body;
+router.post(
+    '/',
+    rateLimiter,
+    validatePersonel,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const {
+                first_name,
+                last_name,
+                birth_date,
+                email,
+                password,
+                gender,
+                hire_date,
+            } = req.body;
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+            const hashedPassword = await bcrypt.hash(password, 10);
 
-        const {
-            rows,
-        } = await DatabaseClient.getInstance().query(ADD_PERSONEL_QUERY, [
-            first_name,
-            last_name,
-            birth_date,
-            email,
-            hashedPassword,
-            gender,
-            hire_date,
-        ]);
+            const {
+                rows,
+            } = await DatabaseClient.getInstance().query(ADD_PERSONEL_QUERY, [
+                first_name,
+                last_name,
+                birth_date,
+                email,
+                hashedPassword,
+                gender,
+                hire_date,
+            ]);
 
-        res.status(201).json({
-            message: 'New Personel created',
-            status: 201,
-            data: rows,
-        });
-    } catch (err) {
-        next(
-            new createHttpError.BadRequest(
-                'Invalid values to create a personel.',
-            ),
-        );
-    }
-});
+            res.status(201).json({
+                message: 'New Personel created',
+                status: 201,
+                data: rows,
+            });
+        } catch (err) {
+            next(
+                new createHttpError.BadRequest(
+                    'Invalid values to create a personel.',
+                ),
+            );
+        }
+    },
+);
 
 export { router as personelRouter };

@@ -14,6 +14,6 @@ export const validateCustomer = [
         .withMessage('Customer last name must be valid'),
     body('birth_date')
         .isString()
-        .withMessage('Customer last name must be valid'),
+        .withMessage('Customer birth date must be valid'),
     validateRequest,
 ];
