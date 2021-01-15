@@ -6,8 +6,6 @@ COPY package.json .
 
 RUN yarn install --production=true
 
-EXPOSE 8080
-
 
 FROM base as dev
 

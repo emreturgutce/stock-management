@@ -9,6 +9,7 @@ services:
       - postgres
       - redis
     ports:
+      - 9229:9229
       - 8080:8080
     volumes:
       - .:/app

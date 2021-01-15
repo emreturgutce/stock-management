@@ -9,7 +9,8 @@
         "start": "cross-env NODE_ENV=production node dist/index.js",
         "dev": "ts-node-dev --poll --respawn --transpile-only src/index.ts",
         "test": "cross-env NODE_ENV=test nodemon --watch . --ext ts --exec \"mocha --file src/test/setup.ts -r ts-node/register src/**/*.test.ts\"",
-        "build": "tsc"
+        "build": "tsc",
+        "debug": "node -r ts-node/register --inspect=0.0.0.0:9229 src/index.ts"
     },
     "devDependencies": {
         "@types/bcryptjs": "^2.4.2",
