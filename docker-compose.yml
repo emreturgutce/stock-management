@@ -13,7 +13,7 @@ services:
       - 8080:8080
     volumes:
       - .:/app
-    env_file: .env.docker
+    env_file: .env.local
   postgres:
     image: postgres
     restart: on-failure
