@@ -25,6 +25,4 @@ class RedisClient {
     }
 }
 
-RedisClient.getInstance();
-
 export { RedisClient };
