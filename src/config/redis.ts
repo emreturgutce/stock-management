@@ -10,7 +10,20 @@ class RedisClient {
 				host: REDIS_HOST,
 				password: REDIS_PASSWORD,
 				port: parseInt(REDIS_PORT, 10),
-				connectTimeout: 10000,
+				connectTimeout: 17000,
+				maxRetriesPerRequest: 4,
+				retryStrategy: (times) => Math.min(times * 30, 1000),
+				reconnectOnError: (error): boolean => {
+					const targetErrors = [/READONLY/, /ETIMEDOUT/];
+
+					targetErrors.forEach((targetError) => {
+						if (targetError.test(error.message)) {
+							return true;
+						}
+					});
+
+					return false;
+				},
 			});
 
 			RedisClient.client.once('error', (err) => {
