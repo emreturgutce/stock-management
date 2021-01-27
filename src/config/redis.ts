@@ -26,7 +26,7 @@ class RedisClient {
 				},
 			});
 
-			RedisClient.client.once('error', (err) => {
+			RedisClient.client.on('error', (err) => {
 				console.log(`Error occurred connecting Redis: ${err}`.red);
 			});
 
