@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { app } from '../../../app';
-import { loginUser, user } from '../../../utils';
+import { loginUser, user } from '../../../test/login-user';
 
 describe('/api/personels/logout tests', () => {
     it('Should return 204 No Content for valid cookie', async () => {

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import request from 'supertest';
 import { app } from '../../../app';
-import { loginUser, user } from '../../../utils';
+import { loginUser, user } from '../../../test/login-user';
 
 describe('/api/cars tests', () => {
     it('Should return 200 OK for valid cookie', async () => {

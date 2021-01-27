@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import request from 'supertest';
 import { app } from '../../../app';
-import { user } from '../../../utils/login-user';
+import { user } from '../../../test/login-user';
 
 const postPersonelsLogin = request(app).post('/api/personels/login');
 

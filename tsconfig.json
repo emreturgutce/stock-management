@@ -82,7 +82,6 @@
 	"exclude": [
 		"node_modules",
 		"src/**/*.test.ts",
-		"src/test",
-		"src/utils/login-user.ts"
+		"src/test"
 	]
 }
