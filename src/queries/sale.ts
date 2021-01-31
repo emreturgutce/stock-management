@@ -22,3 +22,10 @@ export const GET_SALES_QUERY = `
 export const GET_SALE_BY_ID_QUERY = `
     SELECT * FROM sales WHERE id = $1;
 `;
+export const GET_SALES_BETWEEN_TWO_DATES = `
+    SELECT COUNT(*), sale_date 
+    FROM sales 
+    WHERE sale_date 
+    BETWEEN $1 AND $2 
+    GROUP BY sale_date;
+`;
