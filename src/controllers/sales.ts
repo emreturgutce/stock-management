@@ -12,6 +12,7 @@ import {
 	ADD_CUSTOMER_QUERY,
 	MARK_CAR_AS_SOLD_QUERY,
 	GET_SALES_BETWEEN_TWO_DATES,
+	GET_TOTAL_PROFIT,
 } from '../queries';
 
 const router = Router();
@@ -118,6 +119,22 @@ router.get('/count', async (req, res, next) => {
 			message: `Sales fetched between ${fromDate} and ${toDate}`,
 			status: 200,
 			data: arr,
+		});
+	} catch (error) {
+		next(new createHttpError.InternalServerError('Internal Server Error'));
+	}
+});
+
+router.get('/profit', async (req, res, next) => {
+	try {
+		const { rows } = await DatabaseClient.getInstance().query(
+			GET_TOTAL_PROFIT,
+		);
+
+		res.json({
+			message: 'Total profit fetched',
+			data: rows[0],
+			status: 200,
 		});
 	} catch (error) {
 		next(new createHttpError.InternalServerError('Internal Server Error'));

@@ -9,3 +9,7 @@ export const ADD_CUSTOMER_QUERY = `
 export const GET_CUSTOMERS_QUERY = `
     SELECT * FROM customers;
 `;
+
+export const GET_CUSTOMER_COUNT = `
+    SELECT COUNT(*) FROM customers;
+`;

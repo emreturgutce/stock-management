@@ -29,3 +29,8 @@ export const GET_SALES_BETWEEN_TWO_DATES = `
     BETWEEN $1 AND $2 
     GROUP BY sale_date;
 `;
+export const GET_TOTAL_PROFIT = `
+    select SUM(invoices.price - cars.purchase_price) AS profit from sales
+        inner join cars on sales.car_id = cars.id
+        inner join invoices on invoices.id = sales.invoice_id;
+`;
