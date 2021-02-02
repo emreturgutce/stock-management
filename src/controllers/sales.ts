@@ -14,6 +14,7 @@ import {
 	GET_SALES_BETWEEN_TWO_DATES,
 	GET_TOTAL_PROFIT,
 } from '../queries';
+import { createInvoicePdf } from '../utils/create-invoice-pdf';
 
 const router = Router();
 
@@ -165,6 +166,22 @@ router.get(
 				status: 200,
 				data: rows,
 			});
+		} catch (error) {
+			next(
+				new createHttpError.InternalServerError(
+					'Internal Server Error',
+				),
+			);
+		}
+	},
+);
+
+router.get(
+	'/:id/pdf',
+	validateUUID,
+	(req: Request, res: Response, next: NextFunction) => {
+		try {
+			createInvoicePdf().pipe(res);
 		} catch (error) {
 			next(
 				new createHttpError.InternalServerError(
