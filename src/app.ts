@@ -6,6 +6,7 @@ import { indexRouter } from './controllers';
 
 const app = express();
 
+app.use(express.static('public'))
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
 app.use(cors(corsOptions));

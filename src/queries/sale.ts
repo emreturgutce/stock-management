@@ -34,3 +34,25 @@ export const GET_TOTAL_PROFIT = `
         inner join cars on sales.car_id = cars.id
         inner join invoices on invoices.id = sales.invoice_id;
 `;
+export const GET_FULL_SALE_INFO = `
+    select 
+        sales.sale_date, 
+        invoices.serial_number, 
+        invoices.price, 
+        customers.first_name as customer_first_name, 
+        customers.last_name as customer_last_name, 
+        personels.first_name as personel_first_name, 
+        personels.last_name as personel_last_name, 
+        personels.email as personel_email,
+        cars.title, 
+        cars.description, 
+        cars.model, 
+        cars.year, 
+        cars.is_new
+    from sales 
+    join invoices on invoices.id = sales.invoice_id 
+    join customers on customers.id = sales.customer_id 
+    join personels on personels.id = sales.personel_id
+    join cars on cars.id = sales.car_id
+    where sales.car_id = $1;
+`;

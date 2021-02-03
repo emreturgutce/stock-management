@@ -13,7 +13,9 @@ import {
 	MARK_CAR_AS_SOLD_QUERY,
 	GET_SALES_BETWEEN_TWO_DATES,
 	GET_TOTAL_PROFIT,
+	GET_FULL_SALE_INFO,
 } from '../queries';
+import { createInvoicePdf } from '../utils/create-invoice-pdf';
 
 const router = Router();
 
@@ -166,6 +168,40 @@ router.get(
 				data: rows,
 			});
 		} catch (error) {
+			next(
+				new createHttpError.InternalServerError(
+					'Internal Server Error',
+				),
+			);
+		}
+	},
+);
+
+router.get(
+	'/:id/pdf',
+	validateUUID,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const {
+				rows,
+			} = await DatabaseClient.getInstance().query(GET_FULL_SALE_INFO, [
+				req.params.id,
+			]);
+
+			if (rows.length === 0) {
+				return next(
+					new createHttpError.NotFound(
+						'Could not found any sale information with the given car id.',
+					),
+				);
+			}
+
+			res.setHeader('Content-Type', 'application/pdf');
+			res.setHeader('Content-Disposition', 'attachment; filename: \"fatura.pdf\"')
+
+			createInvoicePdf(rows[0]).pipe(res);
+		} catch (error) {
+			console.log(error);
 			next(
 				new createHttpError.InternalServerError(
 					'Internal Server Error',
