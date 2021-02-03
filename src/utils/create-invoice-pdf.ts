@@ -1,37 +1,24 @@
 import PDFKit from 'pdfkit';
 
-const invoiceData = {
-	shipping: {
-		name: 'John Doe',
-		address: '1234 Main Street',
-		city: 'San Francisco',
-		state: 'CA',
-		country: 'US',
-		postal_code: 94111,
-	},
-	items: [
-		{
-			item: 'TC 100',
-			description: 'Toner Cartridge',
-			quantity: 2,
-			amount: 6000,
-		},
-		{
-			item: 'USB_EXT',
-			description: 'USB Cable Extender',
-			quantity: 1,
-			amount: 2000,
-		},
-	],
-	subtotal: 8000,
-	paid: 0,
-	invoice_nr: 1234,
-};
+interface SaleInfo {
+	sale_date: string;
+	serial_number: string;
+	price: string;
+	customer_first_name: string;
+	customer_last_name: string;
+	personel_first_name: string;
+	personel_last_name: string;
+	personel_email: string;
+	title: string;
+	description: string;
+	model: string;
+	year: string;
+	is_new: string;
+}
 
-export function createInvoicePdf(invoice = invoiceData): PDFKit.PDFDocument {
+export function createInvoicePdf(invoice: SaleInfo): PDFKit.PDFDocument {
 	const doc = new PDFKit({ margin: 50 });
 
-	// Header
 	doc.image('public/logo.png', 50, 45, { width: 50 })
 		.fillColor('#444444')
 		.fontSize(20)
@@ -41,11 +28,18 @@ export function createInvoicePdf(invoice = invoiceData): PDFKit.PDFDocument {
 		.text('New York, NY, 10025', 200, 80, { align: 'right' })
 		.moveDown();
 
-	const { shipping } = invoice;
+	const shipping = {
+		name: 'John Doe',
+		address: '1234 Main Street',
+		city: 'San Francisco',
+		state: 'CA',
+		country: 'US',
+		postal_code: 94111,
+	};
 
-	doc.text(`Invoice Number: ${invoice.invoice_nr}`, 50, 200)
-		.text(`Invoice Date: ${new Date()}`, 50, 215)
-		.text(`Balance Due: ${invoice.subtotal - invoice.paid}`, 50, 130)
+	doc.text(`Invoice Number: ${invoice.serial_number}`, 50, 200)
+		.text(`Invoice Date: ${invoice.sale_date}`, 50, 215)
+		.text(`Balance Due: ${invoice.price}`, 50, 130)
 		.text(shipping.name, 475, 200)
 		.text(shipping.address, 475, 215)
 		.text(
@@ -55,25 +49,10 @@ export function createInvoicePdf(invoice = invoiceData): PDFKit.PDFDocument {
 		)
 		.moveDown();
 
-	let i,
-		invoiceTableTop = 330;
-
-	for (i = 0; i < invoice.items.length; i++) {
-		const item = invoice.items[i];
-		const position = invoiceTableTop + (i + 1) * 30;
-		doc.fontSize(10)
-			.text(item.item, 50, position)
-			.text(item.description, 150, position)
-			.text(String(item.amount / item.quantity), 280, position, {
-				width: 90,
-				align: 'right',
-			})
-			.text(String(item.quantity), 370, position, {
-				width: 90,
-				align: 'right',
-			})
-			.text(String(item.amount), 0, position, { align: 'right' });
-	}
+	doc.fontSize(10)
+		.text(invoice.title, 50, 360)
+		.text(invoice.description, 50, 380)
+		.text(invoice.price, 50, 460);
 
 	doc.end();
 
