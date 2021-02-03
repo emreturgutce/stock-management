@@ -196,6 +196,9 @@ router.get(
 				);
 			}
 
+			res.setHeader('Content-Type', 'application/pdf');
+			res.setHeader('Content-Disposition', 'attachment; filename: \"fatura.pdf\"')
+
 			createInvoicePdf(rows[0]).pipe(res);
 		} catch (error) {
 			console.log(error);
