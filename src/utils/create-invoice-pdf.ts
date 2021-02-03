@@ -16,43 +16,89 @@ interface SaleInfo {
 	is_new: string;
 }
 
+const formatPrice = (price: string) =>
+	new Intl.NumberFormat('tr-TR', {
+		minimumFractionDigits: 2,
+	}).format(Number(price));
+
 export function createInvoicePdf(invoice: SaleInfo): PDFKit.PDFDocument {
-	const doc = new PDFKit({ margin: 50 });
+	const doc = new PDFKit({
+		margin: 100,
+		info: { Title: 'Araba Satış Faturası' },
+	});
 
-	doc.image('public/logo.png', 50, 45, { width: 50 })
-		.fillColor('#444444')
-		.fontSize(20)
-		.text('Stock Management System', 110, 57)
+	doc.moveDown(2)
+		.fillColor('#3B5998')
+		.font('Helvetica-Bold')
+		.fontSize(16)
+		.text('Stock Management System', { align: 'center' })
+		.moveDown(0.2)
+		.fillColor('#111')
+		.fontSize(8)
+		.text(`${invoice.personel_email} | +90 (444) 444 44 44`, {
+			align: 'center',
+		});
+
+	doc.moveDown(4)
+		.fillColor('#3B5998')
+		.fontSize(12)
+		.text('Araba Satis Faturasi')
+		.fillColor('#333')
 		.fontSize(10)
-		.text('123 Main Street', 200, 65, { align: 'right' })
-		.text('New York, NY, 10025', 200, 80, { align: 'right' })
-		.moveDown();
-
-	const shipping = {
-		name: 'John Doe',
-		address: '1234 Main Street',
-		city: 'San Francisco',
-		state: 'CA',
-		country: 'US',
-		postal_code: 94111,
-	};
-
-	doc.text(`Invoice Number: ${invoice.serial_number}`, 50, 200)
-		.text(`Invoice Date: ${invoice.sale_date}`, 50, 215)
-		.text(`Balance Due: ${invoice.price}`, 50, 130)
-		.text(shipping.name, 475, 200)
-		.text(shipping.address, 475, 215)
+		.font('Helvetica')
+		.moveDown(0.5)
+		.text(`Fatura Numarasi: ${invoice.serial_number}`)
+		.moveDown(0.3)
 		.text(
-			`${shipping.city}, ${shipping.state}, ${shipping.country}`,
-			475,
-			130,
+			`Musteri Adi Soyadi: ${invoice.customer_first_name.toUpperCase()} ${invoice.customer_last_name.toUpperCase()}`,
 		)
-		.moveDown();
+		.moveDown(0.3)
+		.text(
+			`Satis Tarihi: ${new Date(invoice.sale_date).toLocaleDateString(
+				'tr-TR',
+			)}`,
+		)
+		.moveDown(0.3)
+		.text(
+			`Satisi Yapan Personel: ${invoice.personel_first_name.toUpperCase()} ${invoice.personel_last_name.toUpperCase()}`,
+		);
 
-	doc.fontSize(10)
-		.text(invoice.title, 50, 360)
-		.text(invoice.description, 50, 380)
-		.text(invoice.price, 50, 460);
+	doc.moveDown(6)
+		.font('Helvetica-Bold')
+		.fontSize(12)
+		.fillColor('#3B5998')
+		.text('Arac Ilan Basligi', { lineBreak: false })
+		.text('Model', { align: 'right' })
+		.moveDown(1)
+		.font('Helvetica')
+		.fill('#111')
+		.text(`${invoice.title}`, 100, undefined, { lineBreak: false })
+		.text(`${invoice.model}`, { align: 'right' });
+
+	doc.moveDown(4)
+		.font('Helvetica-Bold')
+		.fontSize(12)
+		.fillColor('#3B5998')
+		.text('Toplam', { align: 'left', lineBreak: false })
+		.fillColor('#111')
+		.text(`${formatPrice(invoice.price)} TL`, { align: 'right' });
+
+	doc.moveDown(4)
+		.font('Helvetica-Bold')
+		.fontSize(12)
+		.fillColor('#3B5998')
+		.text('Sartlar', 100)
+		.moveDown(1)
+		.fillColor('#111')
+		.font('Helvetica')
+		.fontSize(10)
+		.list(
+			[
+				"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. ",
+				"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. ",
+			],
+			110,
+		);
 
 	doc.end();
 
