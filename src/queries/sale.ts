@@ -56,3 +56,13 @@ export const GET_FULL_SALE_INFO = `
     join cars on cars.id = sales.car_id
     where sales.car_id = $1;
 `;
+
+export const GET_LAST_FIVE_SALES = `
+    select title, first_name, last_name, purchase_price, serial_number, sale_date
+    from sales
+        join customers on customers.id = customer_id
+        join invoices on invoices.id = sales.invoice_id
+        join cars on cars.id = car_id
+    order by sale_date desc
+    limit 5;
+`;

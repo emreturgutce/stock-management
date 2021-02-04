@@ -14,6 +14,7 @@ import {
 	GET_SALES_BETWEEN_TWO_DATES,
 	GET_TOTAL_PROFIT,
 	GET_FULL_SALE_INFO,
+	GET_LAST_FIVE_SALES,
 } from '../queries';
 import { createInvoicePdf } from '../utils/create-invoice-pdf';
 
@@ -143,6 +144,22 @@ router.get('/profit', async (req, res, next) => {
 	}
 });
 
+router.get('/latest', async (req, res, next) => {
+	try {
+		const { rows } = await DatabaseClient.getInstance().query(
+			GET_LAST_FIVE_SALES,
+		);
+
+		res.json({
+			message: 'Last 5 sales fetched',
+			data: rows,
+			status: 200,
+		});
+	} catch (error) {
+		next(new createHttpError.InternalServerError('Internal Server Error'));
+	}
+});
+
 router.get(
 	'/:id',
 	validateUUID,
@@ -197,7 +214,10 @@ router.get(
 			}
 
 			res.setHeader('Content-Type', 'application/pdf');
-			res.setHeader('Content-Disposition', 'attachment; filename: \"fatura.pdf\"')
+			res.setHeader(
+				'Content-Disposition',
+				'attachment; filename: "fatura.pdf"',
+			);
 
 			createInvoicePdf(rows[0]).pipe(res);
 		} catch (error) {
