@@ -27,3 +27,13 @@ export const CHECK_IF_PERSONEL_EXISTS_WITH_THE_ID = `
 export const DELETE_PERSONELS = `
     DELETE FROM personels;
 `;
+export const UPDATE_PERSONEL_BY_ID = `
+    UPDATE personels
+    SET 
+        first_name = $1, 
+        last_name = $2, 
+        email = $3, 
+        birth_date = $4, 
+        gender = $5
+    WHERE id = $6;
+`;

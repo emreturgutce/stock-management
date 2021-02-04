@@ -8,12 +8,14 @@ import {
 	GET_PERSONELS_QUERY,
 	GET_PERSONEL_BY_EMAIL,
 	GET_PERSONEL_BY_ID,
+	UPDATE_PERSONEL_BY_ID,
 } from '../queries';
 import {
 	auth,
 	rateLimiter,
 	validateLogin,
 	validatePersonel,
+	validateUUID,
 } from '../middlewares';
 import { COOKIE_NAME } from '../constants';
 
@@ -146,10 +148,43 @@ router.post(
 				data: rows,
 			});
 		} catch (err) {
-			console.log(err);
 			next(
 				new createHttpError.BadRequest(
 					'Invalid values to create a personel.',
+				),
+			);
+		}
+	},
+);
+
+router.put(
+	'/:id',
+	validateUUID,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const {
+				first_name,
+				last_name,
+				email,
+				birth_date,
+				gender,
+			} = req.body;
+
+			await DatabaseClient.getInstance().query(UPDATE_PERSONEL_BY_ID, [
+				first_name,
+				last_name,
+				email,
+				birth_date,
+				gender,
+				req.params.id,
+			]);
+
+			res.status(204).send();
+		} catch (error) {
+			console.log(error)
+			next(
+				new createHttpError.BadRequest(
+					'Invalid values to update a personel.',
 				),
 			);
 		}
