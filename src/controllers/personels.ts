@@ -170,6 +170,7 @@ router.post(
 
 router.get(
 	'/verify/:token',
+	auth,
 	validateVerifyToken,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
@@ -191,6 +192,8 @@ router.get(
 				RedisClient.getInstance().del(key),
 			]);
 
+			req.session.context.verified = true;
+
 			res.json({
 				status: 200,
 				message: 'Email successfully verified',
@@ -207,6 +210,12 @@ router.get(
 	auth,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
+			if (req.session.context.verified) {
+				return next(
+					new createHttpError.BadRequest('Email is already verified'),
+				);
+			}
+
 			res.json({
 				message: 'Verification email has been sent',
 				status: 200,

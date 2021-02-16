@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import { CONFIRM_USER_PREFIX } from '../constants';
-import { RedisClient } from '../config';
+import { FRONTEND_URL, RedisClient } from '../config';
 
 export async function createConfirmationUrl(userId: string): Promise<string> {
 	const token = uuid();
@@ -12,5 +12,5 @@ export async function createConfirmationUrl(userId: string): Promise<string> {
 		60 * 5,
 	);
 
-	return `http://localhost:3000/user/confirm/${token}`;
+	return `${FRONTEND_URL}/user/confirm/${token}`;
 }
