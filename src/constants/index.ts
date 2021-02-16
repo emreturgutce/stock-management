@@ -3,3 +3,4 @@ export const COOKIE_NAME = 'auth_token';
 export const RATE_LIMIT_TIME = 60;
 export const RATE_LIMIT = 25;
 export const RATE_LIMIT_PREFIX = 'ratelimit';
+export const CONFIRM_USER_PREFIX = 'user-confirmation:';
