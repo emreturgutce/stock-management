@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS personels (
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     birth_date DATE,
+    verified BOOLEAN NOT NULL DEFAULT FALSE,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     gender gender_enum,

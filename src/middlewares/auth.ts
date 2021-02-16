@@ -6,7 +6,7 @@ import { JWT_SECRET, DatabaseClient } from '../config';
 import { CHECK_IF_PERSONEL_EXISTS_WITH_THE_ID } from '../queries';
 
 export const auth = async (req: Request, res: Response, next: NextFunction) => {
-    if (!req.session.userId) {
+    if (!req.session.context.id) {
         return next(
             new createHttpError.Unauthorized(
                 'You must be authenticated to perform this action',
@@ -14,7 +14,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
         );
     }
 
-    const userId = jwt.verify(req.session.userId, JWT_SECRET!);
+    const userId = jwt.verify(req.session.context.id, JWT_SECRET);
 
     if (typeof userId === 'string') {
         const isValidUUID = validate(userId);
