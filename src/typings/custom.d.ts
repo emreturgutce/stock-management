@@ -32,6 +32,7 @@ declare global {
 		sameSite: boolean | 'none' | 'strict' | 'lax' | undefined;
 		secure: boolean;
 		httpOnly: boolean;
+		signed: boolean;
 	}
 
 	type User = {
