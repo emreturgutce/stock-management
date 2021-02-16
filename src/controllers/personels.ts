@@ -1,13 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import {
-	DatabaseClient,
-	cookieOptions,
-	JWT_SECRET,
-	RedisClient,
-} from '../config';
+import { DatabaseClient, cookieOptions, RedisClient } from '../config';
 import {
 	ADD_PERSONEL_QUERY,
 	GET_PERSONELS_QUERY,
@@ -54,10 +48,8 @@ router.post(
 				);
 			}
 
-			const token = jwt.sign(rows[0].id, JWT_SECRET);
-
 			req.session.context = {
-				id: token,
+				id: rows[0].id,
 				verified: rows[0].verified,
 				email: rows[0].email,
 			};
@@ -113,7 +105,7 @@ router.get('/current', auth, async (req, res, next) => {
 		const {
 			rows,
 		} = await DatabaseClient.getInstance().query(GET_PERSONEL_BY_ID, [
-			jwt.decode(req.session.context.id),
+			req.session.context.id,
 		]);
 
 		res.json({
@@ -223,9 +215,7 @@ router.get(
 			await sendEmail(
 				createConfirmationEmailContent(
 					req.session.context.email,
-					await createConfirmationUrl(
-						jwt.decode(req.session.context.id) as string,
-					),
+					await createConfirmationUrl(req.session.context.id),
 				),
 			);
 		} catch (error) {
