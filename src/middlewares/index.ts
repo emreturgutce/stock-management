@@ -13,3 +13,7 @@ export * from './validate-personel';
 export * from './validate-sale';
 export * from './validate-car-color';
 export * from './validate-car-manufacturer';
+export * from './validate-change-forgotten-password';
+export * from './validate-change-password';
+export * from './validate-forgot-email';
+export * from './validate-verify-token';
