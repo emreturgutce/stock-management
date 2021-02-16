@@ -1,15 +1,17 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import { v4 as uuid } from 'uuid';
 import {
 	DatabaseClient,
 	cookieOptions,
-	JWT_SECRET,
 	RedisClient,
+	FRONTEND_URL,
 } from '../config';
 import {
 	ADD_PERSONEL_QUERY,
+	CHANGE_PASSWORD,
+	CHECK_IF_PERSONEL_EXISTS_WITH_THE_EMAIL,
 	GET_PERSONELS_QUERY,
 	GET_PERSONEL_BY_EMAIL,
 	GET_PERSONEL_BY_ID,
@@ -22,12 +24,20 @@ import {
 	validateLogin,
 	validatePersonel,
 	validateUUID,
+	validateVerifyToken,
+	validateChangePassword,
+	validateChangeForgottenPassword,
+	validateForgotEmail,
 } from '../middlewares';
-import { CONFIRM_USER_PREFIX, COOKIE_NAME } from '../constants';
+import {
+	CONFIRM_USER_PREFIX,
+	COOKIE_NAME,
+	FORGOT_PASSWORD_PREFIX,
+} from '../constants';
 import { sendEmail } from '../utils/send-mail';
 import { createConfirmationUrl } from '../utils/create-confirmation-url';
 import { createConfirmationEmailContent } from '../utils/create-confirmation-email-content';
-import { validateVerifyToken } from '../middlewares/validate-verify-token';
+import { createForgotPasswordEmailContent } from '../utils/create-forgot-password-email-content';
 
 const router = Router();
 
@@ -54,10 +64,8 @@ router.post(
 				);
 			}
 
-			const token = jwt.sign(rows[0].id, JWT_SECRET);
-
 			req.session.context = {
-				id: token,
+				id: rows[0].id,
 				verified: rows[0].verified,
 				email: rows[0].email,
 			};
@@ -113,7 +121,7 @@ router.get('/current', auth, async (req, res, next) => {
 		const {
 			rows,
 		} = await DatabaseClient.getInstance().query(GET_PERSONEL_BY_ID, [
-			jwt.decode(req.session.context.id),
+			req.session.context.id,
 		]);
 
 		res.json({
@@ -178,6 +186,7 @@ router.post(
 
 router.get(
 	'/verify/:token',
+	auth,
 	validateVerifyToken,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
@@ -199,6 +208,8 @@ router.get(
 				RedisClient.getInstance().del(key),
 			]);
 
+			req.session.context.verified = true;
+
 			res.json({
 				status: 200,
 				message: 'Email successfully verified',
@@ -215,6 +226,12 @@ router.get(
 	auth,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
+			if (req.session.context.verified) {
+				return next(
+					new createHttpError.BadRequest('Email is already verified'),
+				);
+			}
+
 			res.json({
 				message: 'Verification email has been sent',
 				status: 200,
@@ -223,11 +240,122 @@ router.get(
 			await sendEmail(
 				createConfirmationEmailContent(
 					req.session.context.email,
-					await createConfirmationUrl(
-						jwt.decode(req.session.context.id) as string,
-					),
+					await createConfirmationUrl(req.session.context.id),
 				),
 			);
+		} catch (error) {
+			next(
+				new createHttpError.InternalServerError('Something went wrong'),
+			);
+		}
+	},
+);
+
+router.post(
+	'/forgot-password',
+	validateForgotEmail,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const { email } = req.body;
+
+			const {
+				rows,
+			} = await DatabaseClient.getInstance().query(
+				CHECK_IF_PERSONEL_EXISTS_WITH_THE_EMAIL,
+				[email],
+			);
+
+			if (rows.length === 0) {
+				return next(
+					new createHttpError.NotFound(
+						'User not found with the given email',
+					),
+				);
+			}
+			res.json({
+				status: 200,
+				message: 'Forgot password email sent',
+			});
+
+			const token = uuid();
+
+			await Promise.all([
+				RedisClient.getInstance().set(
+					`${FORGOT_PASSWORD_PREFIX}${token}`,
+					rows[0].id,
+					'ex',
+					60 * 5,
+				),
+				sendEmail(
+					createForgotPasswordEmailContent(
+						email,
+						`${FRONTEND_URL}/user/change-password/${token}`,
+					),
+				),
+			]);
+		} catch (error) {
+			next(
+				new createHttpError.InternalServerError('Something went wrong'),
+			);
+		}
+	},
+);
+
+router.post(
+	'/change-password/:token',
+	validateChangeForgottenPassword,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const { token } = req.params;
+
+			const id = await RedisClient.getInstance().get(
+				`${FORGOT_PASSWORD_PREFIX}${token}`,
+			);
+
+			if (!id) {
+				return next(new createHttpError.BadRequest('Bad request'));
+			}
+
+			await Promise.all([
+				DatabaseClient.getInstance().query(CHANGE_PASSWORD, [
+					await bcrypt.hash(req.body.password, 2),
+					id,
+				]),
+				RedisClient.getInstance().del(
+					`${FORGOT_PASSWORD_PREFIX}${token}`,
+				),
+			]);
+
+			res.status(204).send();
+		} catch (error) {
+			console.error(error);
+			next(
+				new createHttpError.InternalServerError('Something went wrong'),
+			);
+		}
+	},
+);
+
+router.post(
+	'/change-password',
+	auth,
+	validateChangePassword,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			if (!req.session.context.verified) {
+				return next(
+					new createHttpError.BadRequest(
+						'Email must be verified to change password',
+					),
+				);
+			}
+
+			await DatabaseClient.getInstance().query(CHANGE_PASSWORD, [
+				await bcrypt.hash(req.body.password, 2),
+				req.session.context.id,
+			]);
+
+			res.status(204).send();
 		} catch (error) {
 			next(
 				new createHttpError.InternalServerError('Something went wrong'),

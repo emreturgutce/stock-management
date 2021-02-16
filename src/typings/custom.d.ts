@@ -16,7 +16,6 @@ declare global {
 			REDIS_HOST: string;
 			REDIS_PORT: string;
 			REDIS_PASSWORD: string | undefined;
-			JWT_SECRET: string;
 			PORT: string;
 			POSTGRES_USER: string;
 			POSTGRES_PASSWORD: string;

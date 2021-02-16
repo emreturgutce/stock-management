@@ -10,7 +10,7 @@ const app = express();
 app.use(express.static('public'))
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
-app.use(morgan('dev'))
+app.use(morgan('short'))
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -40,3 +40,9 @@ export const UPDATE_PERSONEL_BY_ID = `
 export const VERIFY_PERSONEL_EMAIL = `
     UPDATE personels SET verified = TRUE WHERE id = $1;
 `;
+export const CHANGE_PASSWORD = `
+    UPDATE personels SET password = $1 WHERE id = $2;
+`;
+export const CHECK_IF_PERSONEL_EXISTS_WITH_THE_EMAIL = `
+    SELECT id FROM personels WHERE email = $1;
+`;
