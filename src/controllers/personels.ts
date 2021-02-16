@@ -2,13 +2,19 @@ import { Router, Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { DatabaseClient, cookieOptions, JWT_SECRET } from '../config';
+import {
+	DatabaseClient,
+	cookieOptions,
+	JWT_SECRET,
+	RedisClient,
+} from '../config';
 import {
 	ADD_PERSONEL_QUERY,
 	GET_PERSONELS_QUERY,
 	GET_PERSONEL_BY_EMAIL,
 	GET_PERSONEL_BY_ID,
 	UPDATE_PERSONEL_BY_ID,
+	VERIFY_PERSONEL_EMAIL,
 } from '../queries';
 import {
 	auth,
@@ -17,7 +23,11 @@ import {
 	validatePersonel,
 	validateUUID,
 } from '../middlewares';
-import { COOKIE_NAME } from '../constants';
+import { CONFIRM_USER_PREFIX, COOKIE_NAME } from '../constants';
+import { sendEmail } from '../utils/send-mail';
+import { createConfirmationUrl } from '../utils/create-confirmation-url';
+import { createConfirmationEmailContent } from '../utils/create-confirmation-email-content';
+import { validateVerifyToken } from '../middlewares/validate-verify-token';
 
 const router = Router();
 
@@ -44,9 +54,13 @@ router.post(
 				);
 			}
 
-			const token = jwt.sign(rows[0].id, JWT_SECRET!);
+			const token = jwt.sign(rows[0].id, JWT_SECRET);
 
-			req.session.userId = token;
+			req.session.context = {
+				id: token,
+				verified: rows[0].verified,
+				email: rows[0].email,
+			};
 
 			res.json({ data: rows, message: 'Logged in', status: 200 });
 		} catch (err) {
@@ -99,7 +113,7 @@ router.get('/current', auth, async (req, res, next) => {
 		const {
 			rows,
 		} = await DatabaseClient.getInstance().query(GET_PERSONEL_BY_ID, [
-			jwt.decode(req.session.userId),
+			jwt.decode(req.session.context.id),
 		]);
 
 		res.json({
@@ -128,8 +142,6 @@ router.post(
 				hire_date,
 			} = req.body;
 
-			const hashedPassword = await bcrypt.hash(password, 10);
-
 			const {
 				rows,
 			} = await DatabaseClient.getInstance().query(ADD_PERSONEL_QUERY, [
@@ -137,7 +149,7 @@ router.post(
 				last_name,
 				birth_date,
 				email,
-				hashedPassword,
+				await bcrypt.hash(password, 2),
 				gender,
 				hire_date,
 			]);
@@ -147,11 +159,78 @@ router.post(
 				status: 201,
 				data: rows,
 			});
+
+			await sendEmail(
+				createConfirmationEmailContent(
+					email,
+					await createConfirmationUrl(rows[0].id),
+				),
+			);
 		} catch (err) {
 			next(
 				new createHttpError.BadRequest(
 					'Invalid values to create a personel.',
 				),
+			);
+		}
+	},
+);
+
+router.get(
+	'/verify/:token',
+	validateVerifyToken,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const key = `${CONFIRM_USER_PREFIX}${req.params.token}`;
+
+			const userId = await RedisClient.getInstance().get(key);
+
+			if (!userId) {
+				return res.status(400).json({
+					message: 'Could not verify email',
+					status: 400,
+				});
+			}
+
+			await Promise.all([
+				DatabaseClient.getInstance().query(VERIFY_PERSONEL_EMAIL, [
+					userId,
+				]),
+				RedisClient.getInstance().del(key),
+			]);
+
+			res.json({
+				status: 200,
+				message: 'Email successfully verified',
+			});
+		} catch (error) {
+			console.error(error);
+			next(new createHttpError.BadRequest('Bad Request'));
+		}
+	},
+);
+
+router.get(
+	'/verify',
+	auth,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			res.json({
+				message: 'Verification email has been sent',
+				status: 200,
+			});
+
+			await sendEmail(
+				createConfirmationEmailContent(
+					req.session.context.email,
+					await createConfirmationUrl(
+						jwt.decode(req.session.context.id) as string,
+					),
+				),
+			);
+		} catch (error) {
+			next(
+				new createHttpError.InternalServerError('Something went wrong'),
 			);
 		}
 	},
@@ -181,7 +260,7 @@ router.put(
 
 			res.status(204).send();
 		} catch (error) {
-			console.log(error)
+			console.log(error);
 			next(
 				new createHttpError.BadRequest(
 					'Invalid values to update a personel.',
