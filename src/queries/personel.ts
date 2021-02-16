@@ -37,3 +37,6 @@ export const UPDATE_PERSONEL_BY_ID = `
         gender = $5
     WHERE id = $6;
 `;
+export const VERIFY_PERSONEL_EMAIL = `
+    UPDATE personels SET verified = TRUE WHERE id = $1;
+`;
