@@ -2,7 +2,7 @@ import session from 'express-session';
 import connectRedis from 'connect-redis';
 import { v4 as uuid } from 'uuid';
 import { NODE_ENV, RedisClient, SESSION_SECRET } from '.';
-import { COOKIE_EXPIRATION, COOKIE_NAME } from '../constants';
+import { COOKIE_EXPIRATION, COOKIE_NAME, SESSION_PREFIX } from '../constants';
 
 const RedisStore = connectRedis(session);
 
@@ -18,7 +18,7 @@ export const cookieOptions: CookieOptions = {
 const sessionConfig = session({
 	store: new RedisStore({
 		client: RedisClient.getInstance(),
-		prefix: `stock-management-session:`,
+		prefix: SESSION_PREFIX,
 	}),
 	name: COOKIE_NAME,
 	secret: SESSION_SECRET,
