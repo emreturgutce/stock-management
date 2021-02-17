@@ -9,7 +9,18 @@ export const ADD_PERSONEL_QUERY = `
         hire_date
     ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
 `;
-
+export const ADD_ADMIN_PERSONEL_QUERY = `
+    INSERT INTO personels (
+        first_name,
+        last_name,
+        birth_date,
+        email,
+        "password",
+        gender,
+        hire_date,
+        role
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;
+`;
 export const GET_PERSONELS_QUERY = `
     SELECT * FROM personels;
 `;
@@ -23,6 +34,9 @@ export const GET_PERSONEL_BY_ID = `
 `;
 export const CHECK_IF_PERSONEL_EXISTS_WITH_THE_ID = `
     SELECT 1 FROM personels WHERE id = $1;
+`;
+export const CHECK_IF_PERSONEL_EXISTS_WITH_THE_ID_AND_ROLE = `
+    SELECT 1 FROM personels WHERE id = $1 AND role = $2;
 `;
 export const DELETE_PERSONELS = `
     DELETE FROM personels;
@@ -45,4 +59,7 @@ export const CHANGE_PASSWORD = `
 `;
 export const CHECK_IF_PERSONEL_EXISTS_WITH_THE_EMAIL = `
     SELECT id FROM personels WHERE email = $1;
+`;
+export const DELETE_PERSONEL_BY_ID = `
+    DELETE FROM personels WHERE id = $1;
 `;
