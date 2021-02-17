@@ -3,7 +3,8 @@ declare module 'express-session' {
 		context: {
 			id: string;
 			email: string;
-            verified: boolean;
+			verified: boolean;
+			role: 'PERSONEL' | 'ADMIN';
 		};
 	}
 }

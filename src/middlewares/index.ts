@@ -1,4 +1,5 @@
 export * from './auth';
+export * from './auth-admin';
 export * from './error-handler';
 export * from './not-found';
 export * from './rate-limiter';

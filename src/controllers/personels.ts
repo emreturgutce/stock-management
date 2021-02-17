@@ -9,9 +9,11 @@ import {
 	FRONTEND_URL,
 } from '../config';
 import {
+	ADD_ADMIN_PERSONEL_QUERY,
 	ADD_PERSONEL_QUERY,
 	CHANGE_PASSWORD,
 	CHECK_IF_PERSONEL_EXISTS_WITH_THE_EMAIL,
+	DELETE_PERSONEL_BY_ID,
 	GET_PERSONELS_QUERY,
 	GET_PERSONEL_BY_EMAIL,
 	GET_PERSONEL_BY_ID,
@@ -28,6 +30,7 @@ import {
 	validateChangePassword,
 	validateChangeForgottenPassword,
 	validateForgotEmail,
+	authAdmin,
 } from '../middlewares';
 import {
 	CONFIRM_USER_PREFIX,
@@ -43,7 +46,6 @@ const router = Router();
 
 router.post(
 	'/login',
-	rateLimiter,
 	validateLogin,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
@@ -68,6 +70,7 @@ router.post(
 				id: rows[0].id,
 				verified: rows[0].verified,
 				email: rows[0].email,
+				role: rows[0].role,
 			};
 
 			res.json({ data: rows, message: 'Logged in', status: 200 });
@@ -100,7 +103,7 @@ router.get('/logout', auth, async (req, res, next) => {
 	}
 });
 
-router.get('/', auth, async (req, res, next) => {
+router.get('/', authAdmin, async (req, res, next) => {
 	try {
 		const { rows } = await DatabaseClient.getInstance().query(
 			GET_PERSONELS_QUERY,
@@ -136,7 +139,7 @@ router.get('/current', auth, async (req, res, next) => {
 
 router.post(
 	'/',
-	rateLimiter,
+	authAdmin,
 	validatePersonel,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
@@ -148,11 +151,10 @@ router.post(
 				password,
 				gender,
 				hire_date,
+				role,
 			} = req.body;
 
-			const {
-				rows,
-			} = await DatabaseClient.getInstance().query(ADD_PERSONEL_QUERY, [
+			const values = [
 				first_name,
 				last_name,
 				birth_date,
@@ -160,7 +162,12 @@ router.post(
 				await bcrypt.hash(password, 2),
 				gender,
 				hire_date,
-			]);
+			];
+
+			const { rows } = await DatabaseClient.getInstance().query(
+				role ? ADD_ADMIN_PERSONEL_QUERY : ADD_PERSONEL_QUERY,
+				role ? [...values, role] : values,
+			);
 
 			res.status(201).json({
 				message: 'New Personel created',
@@ -215,7 +222,6 @@ router.get(
 				message: 'Email successfully verified',
 			});
 		} catch (error) {
-			console.error(error);
 			next(new createHttpError.BadRequest('Bad Request'));
 		}
 	},
@@ -328,7 +334,6 @@ router.post(
 
 			res.status(204).send();
 		} catch (error) {
-			console.error(error);
 			next(
 				new createHttpError.InternalServerError('Something went wrong'),
 			);
@@ -365,7 +370,41 @@ router.post(
 );
 
 router.put(
+	'/current',
+	auth,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const {
+				first_name,
+				last_name,
+				email,
+				birth_date,
+				gender,
+			} = req.body;
+
+			await DatabaseClient.getInstance().query(UPDATE_PERSONEL_BY_ID, [
+				first_name,
+				last_name,
+				email,
+				birth_date,
+				gender,
+				req.session.context.id,
+			]);
+
+			res.status(204).send();
+		} catch (error) {
+			next(
+				new createHttpError.BadRequest(
+					'Invalid values to update a personel.',
+				),
+			);
+		}
+	},
+);
+
+router.put(
 	'/:id',
+	authAdmin,
 	validateUUID,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
@@ -388,11 +427,29 @@ router.put(
 
 			res.status(204).send();
 		} catch (error) {
-			console.log(error);
 			next(
 				new createHttpError.BadRequest(
 					'Invalid values to update a personel.',
 				),
+			);
+		}
+	},
+);
+
+router.delete(
+	'/:id',
+	authAdmin,
+	validateUUID,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			await DatabaseClient.getInstance().query(DELETE_PERSONEL_BY_ID, [
+				req.params.id,
+			]);
+
+			res.status(204).send();
+		} catch (error) {
+			next(
+				new createHttpError.InternalServerError('Something went wrong'),
 			);
 		}
 	},
