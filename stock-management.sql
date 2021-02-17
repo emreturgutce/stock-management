@@ -13,12 +13,15 @@ CREATE TABLE IF NOT EXISTS suppliers (
     birth_date DATE
 );
 
+CREATE TYPE role_enum AS ENUM ('PERSONEL', 'ADMIN');
+
 CREATE TABLE IF NOT EXISTS personels (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     birth_date DATE,
     verified BOOLEAN NOT NULL DEFAULT FALSE,
+    role role_enum NOT NULL DEFAULT 'PERSONEL',
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     gender gender_enum,
