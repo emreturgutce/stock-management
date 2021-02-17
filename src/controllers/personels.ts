@@ -37,10 +37,12 @@ import {
 	COOKIE_NAME,
 	FORGOT_PASSWORD_PREFIX,
 } from '../constants';
-import { sendEmail } from '../utils/send-mail';
-import { createConfirmationUrl } from '../utils/create-confirmation-url';
-import { createConfirmationEmailContent } from '../utils/create-confirmation-email-content';
-import { createForgotPasswordEmailContent } from '../utils/create-forgot-password-email-content';
+import {
+	sendEmail,
+	createConfirmationUrl,
+	createConfirmationEmailContent,
+	createForgotPasswordEmailContent,
+} from '../utils';
 
 const router = Router();
 

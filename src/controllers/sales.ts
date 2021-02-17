@@ -16,7 +16,7 @@ import {
 	GET_FULL_SALE_INFO,
 	GET_LAST_FIVE_SALES,
 } from '../queries';
-import { createInvoicePdf } from '../utils/create-invoice-pdf';
+import { createInvoicePdf } from '../utils';
 
 const router = Router();
 
