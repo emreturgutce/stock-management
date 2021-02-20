@@ -141,7 +141,7 @@ router.get('/current', auth, async (req, res, next) => {
 
 router.post(
 	'/',
-	authAdmin,
+	//authAdmin,
 	validatePersonel,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
