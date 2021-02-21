@@ -393,6 +393,8 @@ router.put(
 				req.session.context.id,
 			]);
 
+			req.session.context.email = email;
+
 			res.status(204).send();
 		} catch (error) {
 			next(

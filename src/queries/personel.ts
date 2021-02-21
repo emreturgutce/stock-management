@@ -58,7 +58,7 @@ export const CHANGE_PASSWORD = `
     UPDATE personels SET password = $1 WHERE id = $2;
 `;
 export const CHECK_IF_PERSONEL_EXISTS_WITH_THE_EMAIL = `
-    SELECT id FROM personels WHERE email = $1;
+    SELECT id FROM personels WHERE email = $1 AND verified = true;
 `;
 export const DELETE_PERSONEL_BY_ID = `
     DELETE FROM personels WHERE id = $1;
