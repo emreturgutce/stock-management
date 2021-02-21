@@ -34,6 +34,10 @@ export const GET_TOTAL_PROFIT = `
         inner join cars on sales.car_id = cars.id
         inner join invoices on invoices.id = sales.invoice_id;
 `;
+export const GET_TOTAL_REVENUE = `
+    select SUM(invoices.price) AS revenue from sales
+        inner join invoices on invoices.id = sales.invoice_id;
+`;
 export const GET_FULL_SALE_INFO = `
     select 
         sales.sale_date, 

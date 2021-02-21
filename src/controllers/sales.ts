@@ -15,6 +15,7 @@ import {
 	GET_TOTAL_PROFIT,
 	GET_FULL_SALE_INFO,
 	GET_LAST_FIVE_SALES,
+	GET_TOTAL_REVENUE,
 } from '../queries';
 import { createInvoicePdf } from '../utils';
 
@@ -136,6 +137,22 @@ router.get('/profit', async (req, res, next) => {
 
 		res.json({
 			message: 'Total profit fetched',
+			data: rows[0],
+			status: 200,
+		});
+	} catch (error) {
+		next(new createHttpError.InternalServerError('Internal Server Error'));
+	}
+});
+
+router.get('/revenue', async (req, res, next) => {
+	try {
+		const { rows } = await DatabaseClient.getInstance().query(
+			GET_TOTAL_REVENUE,
+		);
+
+		res.json({
+			message: 'Total revenue fetched',
 			data: rows[0],
 			status: 200,
 		});
