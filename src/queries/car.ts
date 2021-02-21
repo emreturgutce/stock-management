@@ -42,8 +42,10 @@ export const GET_CARS_QUERY_NEW = `
         ON car_images.car_id = cars.id
         JOIN car_colors
         ON car_colors.id = cars.car_color_code
-            JOIN car_manufacturers
-            ON car_manufacturers.id = cars.car_manufacturer_id;
+        JOIN car_manufacturers
+        ON car_manufacturers.id = cars.car_manufacturer_id
+        JOIN personels
+        ON cars.personel_id = personels.id;
 `;
 export const GET_CAR_BY_ID_QUERY = `
     SELECT * FROM cars WHERE id = $1
