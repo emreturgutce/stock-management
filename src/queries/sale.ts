@@ -62,7 +62,7 @@ export const GET_FULL_SALE_INFO = `
 `;
 
 export const GET_LAST_FIVE_SALES = `
-    select title, first_name, last_name, purchase_price, serial_number, sale_date
+    select title, first_name, last_name, purchase_price, serial_number, sale_date, price, cars.id AS car_id
     from sales
         join customers on customers.id = customer_id
         join invoices on invoices.id = sales.invoice_id
