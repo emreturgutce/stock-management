@@ -53,7 +53,7 @@ if you want to check out client repository you can access it [here](https://gith
 #### Daily Sales Chart
 
 <p align="center">
-    <img src="photos/chart.png" />
+    <img src="photos/graph.png" />
 </p>
 
 #### Profile
