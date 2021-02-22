@@ -6,12 +6,6 @@ Stock Management is an open-source full-stack project that can handle personel r
 
 if you want to check out client repository you can access it [here](https://github.com/emreturgutce/stock-management-client)
 
-### Database Design
-
-<p align="center">
-    <img src="photos/db-design.png" />
-</p>
-
 ### Project Architecture
 
 <p align="center">
@@ -23,25 +17,55 @@ if you want to check out client repository you can access it [here](https://gith
 #### Login
 
 <p align="center">
-    <img src="photos/login.jpg" />
+    <img src="photos/login.png" />
+</p>
+
+#### Forgot Password
+
+<p align="center">
+    <img src="photos/forgot-password.png" />
 </p>
 
 #### Home
 
 <p align="center">
-    <img src="photos/homepage.jpg" />
+    <img src="photos/homepage.png" />
+</p>
+
+#### Unsold Car Detail
+
+<p align="center">
+    <img src="photos/unsold-car-detail.png" />
+</p>
+
+#### Sold Car Detail
+
+<p align="center">
+    <img src="photos/sold-car-detail.png" />
 </p>
 
 #### Car Add
 
 <p align="center">
-    <img src="photos/car-add.jpg" />
+    <img src="photos/add-car.png" />
 </p>
 
-#### Car Detail
+#### Daily Sales Chart
 
 <p align="center">
-    <img src="photos/detail.jpg" />
+    <img src="photos/chart.jpg" />
+</p>
+
+#### Profile
+
+<p align="center">
+    <img src="photos/profile.jpg" />
+</p>
+
+### Database Design
+
+<p align="center">
+    <img src="photos/db-design.png" />
 </p>
 
 ### Installation
