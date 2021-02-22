@@ -65,7 +65,7 @@ if you want to check out client repository you can access it [here](https://gith
 ### Database Design
 
 <p align="center">
-    <img src="photos/db-design.png" />
+    <img src="photos/db.png" />
 </p>
 
 ### Installation
