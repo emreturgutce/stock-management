@@ -3,7 +3,8 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
-import { session, corsOptions } from './config';
+import cookieParser from 'cookie-parser';
+import { session, corsOptions, SESSION_SECRET } from './config';
 import { indexRouter } from './controllers';
 import { rateLimiter } from './middlewares';
 
@@ -17,6 +18,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session);
+app.use(cookieParser(SESSION_SECRET));
 
 app.use(indexRouter);
 
