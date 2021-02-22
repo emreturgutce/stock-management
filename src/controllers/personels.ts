@@ -22,7 +22,6 @@ import {
 } from '../queries';
 import {
 	auth,
-	rateLimiter,
 	validateLogin,
 	validatePersonel,
 	validateUUID,
