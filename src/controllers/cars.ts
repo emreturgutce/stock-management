@@ -9,6 +9,7 @@ import {
 	validateCarManufacturer,
 	validateCar,
 	validateUUID,
+	validateUpdateCar,
 } from '../middlewares';
 import {
 	ADD_CAR_COLOR_QUERY,
@@ -209,7 +210,7 @@ router.post(
 router.put(
 	'/:id',
 	validateUUID,
-	validateCar,
+	validateUpdateCar,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const {

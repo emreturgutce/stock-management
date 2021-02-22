@@ -1,7 +1,7 @@
 import { body } from 'express-validator';
 import { validateRequest } from './validate-request';
 
-export const validateCar = [
+export const validateUpdateCar = [
 	body('title')
 		.trim()
 		.isString()
@@ -30,8 +30,9 @@ export const validateCar = [
 		.withMessage('Is new must be valid'),
 	body('enter_date').isString().withMessage('Enter Date must be valid'),
 	body('supplier_id').isUUID('4').withMessage('Supplier must be valid'),
-	body('personel_id').isUUID('4').withMessage('Personel must be valid'),
-	body('car_manufacturer_id').isUUID('4').withMessage('Manufacturer must be valid'),
+	body('car_manufacturer_id')
+		.isUUID('4')
+		.withMessage('Manufacturer must be valid'),
 	body('car_color_code').isUUID('4').withMessage('Color code must be valid'),
 	validateRequest,
 ];
