@@ -59,7 +59,7 @@ if you want to check out client repository you can access it [here](https://gith
 #### Profile
 
 <p align="center">
-    <img src="photos/profile.pngjpg" />
+    <img src="photos/profile.png" />
 </p>
 
 ### Database Design
