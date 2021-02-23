@@ -345,22 +345,25 @@ router.post(
 	validateUUID,
 	uploadAvatar,
 	async (req: Request, res: Response, next: NextFunction) => {
-		if (!req.file) {
-			return next(new createHttpError.BadRequest('Please upload a file'));
-		}
-
-		const extension = req.file.originalname.split('.')[1];
-
-		const avatarId = `${uuid()}.${extension}`;
-
-		const imageURL = `https://${AWS_S3_BUCKET}.s3-eu-west-1.amazonaws.com/${avatarId}`;
-
 		try {
-			await uploadAvatarToS3(avatarId, req.file.buffer);
+			if (!req.file) {
+				return next(
+					new createHttpError.BadRequest('Please upload a file'),
+				);
+			}
 
-			await DatabaseClient.getInstance().query(ADD_CAR_IMAGE, [
-				imageURL,
-				req.params.id,
+			const extension = req.file.originalname.split('.')[1];
+
+			const avatarId = `${uuid()}.${extension}`;
+
+			const imageURL = `https://${AWS_S3_BUCKET}.s3-eu-west-1.amazonaws.com/${avatarId}`;
+
+			await Promise.all([
+				uploadAvatarToS3(avatarId, req.file.buffer),
+				DatabaseClient.getInstance().query(ADD_CAR_IMAGE, [
+					imageURL,
+					req.params.id,
+				]),
 			]);
 
 			res.json({ message: 'Image saved', status: 200 });
