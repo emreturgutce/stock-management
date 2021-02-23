@@ -38,7 +38,7 @@ export const GET_CARS_QUERY = `
 export const GET_CARS_QUERY_NEW = `
     SELECT *, cars.id AS car_id, cars.description AS car_description, car_colors.name AS car_color, car_manufacturers.name AS car_brand
     FROM cars
-        LEFT JOIN (SELECT car_id, MIN(image_url) AS image_url FROM car_images GROUP BY car_id) AS car_images
+        LEFT JOIN (SELECT car_id, string_agg(image_url, ';') AS image_urls FROM car_images GROUP BY car_id) AS car_images
         ON car_images.car_id = cars.id
         JOIN car_colors
         ON car_colors.id = cars.car_color_code
