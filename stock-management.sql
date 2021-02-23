@@ -3,6 +3,7 @@ CREATE DATABASE stock_management WITH template=template0 owner=postgres;
 \connect stock_management;
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 CREATE TYPE gender_enum AS ENUM ('MALE', 'FEMALE');
 
@@ -161,8 +162,8 @@ INSERT INTO suppliers (first_name, last_name) VALUES  ('Şennur', 'Ağnar');
 INSERT INTO suppliers (first_name, last_name) VALUES  ('Tutkum', 'Ahmadı Asl');
 
 /* Personel Ekle */
-INSERT INTO personels (first_name, last_name, birth_date, email, password, gender, hire_date)
-VALUES ('Cihan', 'Akarpınar', '2000-06-23', 'cihan@akpınar.com', '123456', 'MALE', '2021-01-01');
+INSERT INTO personels (first_name, last_name, birth_date, email, password, gender, hire_date, role)
+VALUES ('Emre', 'Turgut', '2000-06-23', 'emreturgut@mail.com', crypt('123456', gen_salt('bf', 4)), 'MALE', '2021-01-01', 'ADMIN');
 
 /* Araba Ekle */
 INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
