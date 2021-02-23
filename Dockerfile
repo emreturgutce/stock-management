@@ -1,4 +1,5 @@
-FROM node:15.5.0-alpine3.10
+FROM node:15.9.0-buster-slim
+
 
 WORKDIR /app
 

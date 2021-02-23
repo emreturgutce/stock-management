@@ -4,12 +4,12 @@ import { v4 as uuid } from 'uuid';
 import { AWS_S3_BUCKET, DatabaseClient } from '../config';
 import { ForeignKeyConstaintError, UniqueKeyConstaintError } from '../errors';
 import {
-	uploadAvatar,
 	validateCarColor,
 	validateCarManufacturer,
 	validateCar,
 	validateUUID,
 	validateUpdateCar,
+	uploadAvatars,
 } from '../middlewares';
 import {
 	ADD_CAR_COLOR_QUERY,
@@ -117,12 +117,9 @@ router.get('/manufacturers', async (req, res, next) => {
 
 router.post(
 	'/',
-	uploadAvatar,
 	validateCar,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			await DatabaseClient.getInstance().query('BEGIN');
-
 			const {
 				title,
 				sale_price,
@@ -139,51 +136,28 @@ router.post(
 				car_color_code,
 			} = req.body;
 
-			const carRes = await DatabaseClient.getInstance().query(
-				ADD_CAR_QUERY,
-				[
-					title,
-					sale_price,
-					purchase_price,
-					is_sold,
-					description,
-					model,
-					year,
-					is_new,
-					enter_date,
-					supplier_id,
-					personel_id,
-					car_manufacturer_id,
-					car_color_code,
-				],
-			);
-
-			if (req.file) {
-				const extension = req.file.originalname.split('.')[1];
-
-				const avatarId = `${uuid()}.${extension}`;
-
-				const imageURL = `https://${AWS_S3_BUCKET}.s3-eu-west-1.amazonaws.com/${avatarId}`;
-
-				const uploadAvatarPromise = uploadAvatarToS3(
-					avatarId,
-					req.file.buffer,
-				);
-
-				const addCarImagePromise = DatabaseClient.getInstance().query(
-					ADD_CAR_IMAGE,
-					[imageURL, carRes.rows[0].car_id],
-				);
-
-				await Promise.all([uploadAvatarPromise, addCarImagePromise]);
-			}
-
-			await DatabaseClient.getInstance().query('COMMIT');
+			const {
+				rows,
+			} = await DatabaseClient.getInstance().query(ADD_CAR_QUERY, [
+				title,
+				sale_price,
+				purchase_price,
+				is_sold,
+				description,
+				model,
+				year,
+				is_new,
+				enter_date,
+				supplier_id,
+				personel_id,
+				car_manufacturer_id,
+				car_color_code,
+			]);
 
 			res.status(201).json({
 				message: 'New car created',
 				status: 201,
-				data: carRes.rows,
+				data: rows,
 			});
 		} catch (error) {
 			await DatabaseClient.getInstance().query('ROLLBACK');
@@ -343,25 +317,30 @@ router.get(
 router.post(
 	'/:id/images',
 	validateUUID,
-	uploadAvatar,
+	uploadAvatars,
 	async (req: Request, res: Response, next: NextFunction) => {
-		if (!req.file) {
-			return next(new createHttpError.BadRequest('Please upload a file'));
-		}
-
-		const extension = req.file.originalname.split('.')[1];
-
-		const avatarId = `${uuid()}.${extension}`;
-
-		const imageURL = `https://${AWS_S3_BUCKET}.s3-eu-west-1.amazonaws.com/${avatarId}`;
-
 		try {
-			await uploadAvatarToS3(avatarId, req.file.buffer);
+			if (req.files.length < 1) {
+				return next(
+					new createHttpError.BadRequest(
+						'Please upload at least one file',
+					),
+				);
+			}
 
-			await DatabaseClient.getInstance().query(ADD_CAR_IMAGE, [
-				imageURL,
-				req.params.id,
-			]);
+			for await (const file of req.files as Express.Multer.File[]) {
+				const avatarId = `${uuid()}.webp`;
+
+				const imageURL = `https://${AWS_S3_BUCKET}.s3-eu-west-1.amazonaws.com/${avatarId}`;
+
+				Promise.all([
+					uploadAvatarToS3(avatarId, file.buffer),
+					DatabaseClient.getInstance().query(ADD_CAR_IMAGE, [
+						imageURL,
+						req.params.id,
+					]),
+				]);
+			}
 
 			res.json({ message: 'Image saved', status: 200 });
 		} catch (err) {
