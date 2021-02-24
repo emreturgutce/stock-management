@@ -356,26 +356,14 @@ router.delete(
 		try {
 			const { id } = req.params;
 
-			const {
-				rows,
-			} = await DatabaseClient.getInstance().query(DELETE_CAR_BY_ID, [
-				id,
-			]);
-
-			if (rows.length === 0) {
-				return next(
-					new createHttpError.NotFound(
-						`Car not found with the id of ${id}`,
-					),
-				);
-			}
+			await DatabaseClient.getInstance().query(DELETE_CAR_BY_ID, [id]);
 
 			res.json({
 				message: 'Car deleted with the given id.',
-				status: 200,
-				data: rows,
+				status: 204,
 			});
 		} catch (error) {
+			console.log(error);
 			next(
 				new createHttpError.InternalServerError(
 					'Internal Server Error',
