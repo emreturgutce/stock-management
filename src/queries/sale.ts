@@ -29,6 +29,7 @@ export const GET_SALES_QUERY = `
         on cars.id = sales.car_id 
     join invoices 
         on sales.invoice_id = invoices.id
+    order by sales.sale_date desc
     limit 20;
 `;
 export const GET_SALE_BY_ID_QUERY = `
