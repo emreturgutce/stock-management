@@ -17,7 +17,19 @@ export const ADD_SALE_QUERY = `
     ) VALUES ($1, $2, $3, $4, $5)  RETURNING *;
 `;
 export const GET_SALES_QUERY = `
-    SELECT * FROM sales;
+    select 
+        invoices.serial_number, 
+        cars.id as car_id, 
+        cars.title,
+        cars.sale_price, 
+        cars.purchase_price, 
+        sales.sale_date 
+    from sales 
+    join cars 
+        on cars.id = sales.car_id 
+    join invoices 
+        on sales.invoice_id = invoices.id
+    limit 20;
 `;
 export const GET_SALE_BY_ID_QUERY = `
     SELECT * FROM sales WHERE id = $1;
