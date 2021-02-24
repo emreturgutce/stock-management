@@ -253,7 +253,6 @@ router.post(
 	validateSale,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			await DatabaseClient.getInstance().query('BEGIN');
 			const {
 				first_name,
 				last_name,
@@ -265,38 +264,32 @@ router.post(
 				sale_date,
 			} = req.body;
 
-			/* CREATE THE CUSTOMER */
+			const [_, customerRes, invoiceRes] = await Promise.all([
+				DatabaseClient.getInstance().query('BEGIN'),
+				DatabaseClient.getInstance().query(ADD_CUSTOMER_QUERY, [
+					first_name,
+					last_name,
+					birth_date,
+				]),
+				DatabaseClient.getInstance().query(ADD_INVOICE_QUERY, [
+					serial_number,
+					price,
+				]),
+			]);
 
-			const customerRes = await DatabaseClient.getInstance().query(
-				ADD_CUSTOMER_QUERY,
-				[first_name, last_name, birth_date],
-			);
-
-			/* CREATE THE INVOICE */
-
-			const invoiceRes = await DatabaseClient.getInstance().query(
-				ADD_INVOICE_QUERY,
-				[serial_number, price],
-			);
-
-			/* CREATE THE SALE */
-
-			const saleRes = await DatabaseClient.getInstance().query(
-				ADD_SALE_QUERY,
-				[
+			const [saleRes, __, ___] = await Promise.all([
+				DatabaseClient.getInstance().query(ADD_SALE_QUERY, [
 					customerRes.rows[0].id,
 					personel_id,
 					car_id,
 					invoiceRes.rows[0].id,
 					sale_date,
-				],
-			);
-
-			await DatabaseClient.getInstance().query(MARK_CAR_AS_SOLD_QUERY, [
-				car_id,
+				]),
+				DatabaseClient.getInstance().query(MARK_CAR_AS_SOLD_QUERY, [
+					car_id,
+				]),
+				DatabaseClient.getInstance().query('COMMIT'),
 			]);
-
-			await DatabaseClient.getInstance().query('COMMIT');
 
 			res.status(201).json({
 				message: 'New sale created',
@@ -304,6 +297,7 @@ router.post(
 				data: saleRes.rows,
 			});
 		} catch (err) {
+			console.log(err);
 			await DatabaseClient.getInstance().query('ROLLBACK');
 			next(
 				new createHttpError.BadRequest(
