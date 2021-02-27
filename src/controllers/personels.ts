@@ -251,6 +251,7 @@ router.get(
 				status: 200,
 			});
 		} catch (error) {
+			console.log(error);
 			next(
 				new createHttpError.InternalServerError('Something went wrong'),
 			);
