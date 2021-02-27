@@ -24,7 +24,7 @@ import {
 	GET_CAR_MANUFACTURER_QUERY,
 	UPDATE_CAR_BY_ID,
 } from '../queries';
-import { uploadAvatarToS3 } from '../utils';
+import { deleteAvatarFromS3, uploadAvatarToS3 } from '../utils';
 
 const router = Router();
 
@@ -356,14 +356,25 @@ router.delete(
 		try {
 			const { id } = req.params;
 
-			await DatabaseClient.getInstance().query(DELETE_CAR_BY_ID, [id]);
+			const {
+				rows,
+			} = await DatabaseClient.getInstance().query(GET_CAR_IMAGES_BY_ID, [
+				id,
+			]);
+
+			const myRegex = /(.*\.com\/)(.*)/;
+			const images = rows.map((row) => myRegex.exec(row.image_url)?.[2]);
+
+			await Promise.all([
+				images.map((image) => deleteAvatarFromS3(image as string)),
+				DatabaseClient.getInstance().query(DELETE_CAR_BY_ID, [id]),
+			]);
 
 			res.json({
 				message: 'Car deleted with the given id.',
 				status: 204,
 			});
 		} catch (error) {
-			console.log(error);
 			next(
 				new createHttpError.InternalServerError(
 					'Internal Server Error',

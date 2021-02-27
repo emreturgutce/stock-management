@@ -61,7 +61,7 @@ export const ADD_CAR_IMAGE = `
 `;
 
 export const GET_CAR_IMAGES_BY_ID = `
-    SELECT image_url FROM car_images WHERE car_id = $1 LIMIT 1;
+    SELECT image_url FROM car_images WHERE car_id = $1;
 `;
 export const UPDATE_CAR_BY_ID = `
     UPDATE cars 
