@@ -239,17 +239,17 @@ router.get(
 				);
 			}
 
-			res.json({
-				message: 'Verification email has been sent',
-				status: 200,
-			});
-
 			await sendEmail(
 				createConfirmationEmailContent(
 					req.session.context.email,
 					await createConfirmationUrl(req.session.context.id),
 				),
 			);
+
+			res.json({
+				message: 'Verification email has been sent',
+				status: 200,
+			});
 		} catch (error) {
 			next(
 				new createHttpError.InternalServerError('Something went wrong'),
