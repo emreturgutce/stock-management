@@ -19,3 +19,4 @@ export * from './validate-change-forgotten-password';
 export * from './validate-change-password';
 export * from './validate-forgot-email';
 export * from './validate-verify-token';
+export * from './validate-delete-images';
