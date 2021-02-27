@@ -69,3 +69,6 @@ export const UPDATE_CAR_BY_ID = `
         model = $7, is_new = $8, car_color_code = $9, car_manufacturer_id= $10, supplier_id = $11
     WHERE id = $12;
 `;
+export const DELETE_CAR_IMAGE = `
+    delete from car_images where car_id = $1 and image_url = $2;
+`;
