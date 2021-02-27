@@ -33,6 +33,8 @@ export const {
 	AWS_S3_BUCKET,
 	REDIS_PASSWORD,
 	FRONTEND_URL,
+	SENDGRID_USERNAME,
+	SENDGRID_PASSWORD,
 } = process.env;
 export * from './redis';
 export * from './database';
