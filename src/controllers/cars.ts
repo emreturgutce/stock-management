@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
 import { v4 as uuid } from 'uuid';
-import { AWS_S3_BUCKET, DatabaseClient } from '../config';
+import { AWS_S3_BUCKET, DatabaseClient, S3Client } from '../config';
 import { ForeignKeyConstaintError, UniqueKeyConstaintError } from '../errors';
 import {
 	validateCarColor,
@@ -10,6 +10,7 @@ import {
 	validateUUID,
 	validateUpdateCar,
 	uploadAvatars,
+	validateDeleteImages,
 } from '../middlewares';
 import {
 	ADD_CAR_COLOR_QUERY,
@@ -17,6 +18,7 @@ import {
 	ADD_CAR_MANUFACTURER_QUERY,
 	ADD_CAR_QUERY,
 	DELETE_CAR_BY_ID,
+	DELETE_CAR_IMAGE,
 	GET_CARS_QUERY_NEW,
 	GET_CAR_BY_ID_QUERY,
 	GET_CAR_COLORS_QUERY,
@@ -344,6 +346,31 @@ router.post(
 
 			res.json({ message: 'Image saved', status: 200 });
 		} catch (err) {
+			next(new createHttpError.BadRequest('Not valid image'));
+		}
+	},
+);
+
+router.delete(
+	'/:id/images',
+	validateUUID,
+	validateDeleteImages,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const { images }: { images: [string] } = req.body;
+
+			await Promise.all([
+				images.map((image) =>
+					DatabaseClient.getInstance().query(DELETE_CAR_IMAGE, [
+						req.params.id,
+						`https://${AWS_S3_BUCKET}.s3-eu-west-1.amazonaws.com/${image}`,
+					]),
+				),
+				images.map((image) => deleteAvatarFromS3(image)),
+			]);
+
+			res.status(204).send();
+		} catch (error) {
 			next(new createHttpError.BadRequest('Not valid image'));
 		}
 	},
