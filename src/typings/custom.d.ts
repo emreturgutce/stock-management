@@ -26,8 +26,6 @@ declare global {
 			AWS_ACCESS_KEY_ID: string;
 			AWS_SECRET_ACCESS_KEY: string;
 			AWS_S3_BUCKET: string;
-			SENDGRID_USERNAME?: string | undefined;
-			SENDGRID_PASSWORD?: string | undefined;
 		}
 	}
 	interface CookieOptions {
