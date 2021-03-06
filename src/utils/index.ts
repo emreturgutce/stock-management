@@ -5,3 +5,4 @@ export * from './create-confirmation-url';
 export * from './create-forgot-password-email-content';
 export * from './create-invoice-pdf';
 export * from './send-mail';
+export * from './read-car-records-from-excel';
