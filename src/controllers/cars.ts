@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
 import { v4 as uuid } from 'uuid';
+import format from 'pg-format';
 import { AWS_S3_BUCKET, DatabaseClient, S3Client } from '../config';
 import { ForeignKeyConstaintError, UniqueKeyConstaintError } from '../errors';
 import {
@@ -11,8 +12,10 @@ import {
 	validateUpdateCar,
 	uploadAvatars,
 	validateDeleteImages,
+	uploadExcel,
 } from '../middlewares';
 import {
+	ADD_CARS_QUERY,
 	ADD_CAR_COLOR_QUERY,
 	ADD_CAR_IMAGE,
 	ADD_CAR_MANUFACTURER_QUERY,
@@ -26,7 +29,11 @@ import {
 	GET_CAR_MANUFACTURER_QUERY,
 	UPDATE_CAR_BY_ID,
 } from '../queries';
-import { deleteAvatarFromS3, uploadAvatarToS3 } from '../utils';
+import {
+	deleteAvatarFromS3,
+	uploadAvatarToS3,
+	readCarRecordsFromExcel,
+} from '../utils';
 
 const router = Router();
 
@@ -406,6 +413,41 @@ router.delete(
 				new createHttpError.InternalServerError(
 					'Internal Server Error',
 				),
+			);
+		}
+	},
+);
+
+router.post(
+	'/excel',
+	uploadExcel,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const cars = await readCarRecordsFromExcel(req.file); // Read excel document to js array
+
+			for (const car of cars) {
+				car.push(req.session.context.id); // Push the personel id to each car
+			}
+
+			await DatabaseClient.getInstance().query(
+				format(ADD_CARS_QUERY, cars),
+			);
+
+			res.status(201).json({
+				status: 201,
+				message: 'All car records added to database.',
+			});
+		} catch (error) {
+			if (error.message.match(/(invalid input syntax)/)) {
+				return next(
+					new createHttpError.BadRequest(
+						'Please make sure all of the columns of your excel file is correct.',
+					),
+				);
+			}
+
+			next(
+				new createHttpError.InternalServerError('Something went wrong'),
 			);
 		}
 	},
