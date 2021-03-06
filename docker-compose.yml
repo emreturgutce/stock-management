@@ -10,6 +10,7 @@ services:
             - 9229:9229
             - 8080:8080
         volumes:
+            - /app/node_modules
             - .:/app
         env_file: .env.local
     postgres:
