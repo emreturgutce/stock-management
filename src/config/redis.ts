@@ -37,6 +37,18 @@ class RedisClient {
 
 		return RedisClient.client;
 	}
+
+	static setValue(key: string, value: string) {
+		return RedisClient.client.set(key, value);
+	}
+
+	static getValue(key: string) {
+		return RedisClient.client.get(key);
+	}
+
+	static expireValue(key: string) {
+		return RedisClient.client.del(key)
+	}
 }
 
 export { RedisClient };
