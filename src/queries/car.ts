@@ -25,7 +25,7 @@ export const ADD_CAR_QUERY = `
         personel_id,
         car_manufacturer_id,
         car_color_code
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *;
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);
 `;
 export const GET_CARS_QUERY = `
     SELECT *, cars.id AS car_id, cars.description AS car_description, car_colors.name AS car_color, car_manufacturers.name AS car_brand
@@ -36,9 +36,31 @@ export const GET_CARS_QUERY = `
     ON car_manufacturers.id = cars.car_manufacturer_id;
 `;
 export const GET_CARS_QUERY_NEW = `
-    SELECT *, cars.id AS car_id, cars.description AS car_description, car_colors.name AS car_color, car_manufacturers.name AS car_brand
+    SELECT 
+        cars.id AS car_id, 
+        cars.title,
+        cars.description,
+        cars.sale_price,
+        cars.purchase_price,
+        cars.is_sold,
+        cars.model,
+        cars.year,
+        cars.is_new,
+        cars.enter_date,
+        cars.car_color_code,
+        cars.car_manufacturer_id,
+        cars.supplier_id,
+        cars.personel_id AS id,
+        car_colors.name AS car_color, 
+        car_manufacturers.name AS car_brand,
+        personels.first_name,
+        personels.last_name,
+        car_images.image_urls
     FROM cars
-        LEFT JOIN (SELECT car_id, string_agg(image_url, ';') AS image_urls FROM car_images GROUP BY car_id) AS car_images
+        LEFT JOIN (
+            SELECT car_id, string_agg(image_url, ';') AS image_urls 
+            FROM car_images 
+            GROUP BY car_id) AS car_images
         ON car_images.car_id = cars.id
         JOIN car_colors
         ON car_colors.id = cars.car_color_code
@@ -87,4 +109,10 @@ export const ADD_CARS_QUERY = `
         supplier_id,
         personel_id
     ) VALUES %L;
+`;
+export const ADD_MULTI_CAR_IMAGE = `
+    INSERT INTO car_images (image_url, car_id) VALUES %L;
+`;
+export const DELETE_MULTI_CAR_IMAGE = `
+    delete from car_images where car_id = %L and image_url in (%L);
 `;

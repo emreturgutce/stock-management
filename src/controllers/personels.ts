@@ -74,6 +74,8 @@ router.post(
 				role: rows[0].role,
 			};
 
+			delete rows[0].password;
+
 			res.json({ data: rows, message: 'Logged in', status: 200 });
 		} catch (err) {
 			next(
@@ -173,7 +175,6 @@ router.post(
 			res.status(201).json({
 				message: 'New Personel created',
 				status: 201,
-				data: rows,
 			});
 
 			await sendEmail(

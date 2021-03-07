@@ -14,5 +14,5 @@ export const uploadAvatarToS3 = async (
 				.resize(680, 480, { fit: 'contain', background: '#fdfdfd' })
 				.toBuffer(),
 		})
-		.promise();
+		.send();
 };

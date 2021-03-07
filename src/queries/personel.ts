@@ -7,7 +7,7 @@ export const ADD_PERSONEL_QUERY = `
         "password",
         gender,
         hire_date
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id
 `;
 export const ADD_ADMIN_PERSONEL_QUERY = `
     INSERT INTO personels (
@@ -19,14 +19,25 @@ export const ADD_ADMIN_PERSONEL_QUERY = `
         gender,
         hire_date,
         role
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;
 `;
 export const GET_PERSONELS_QUERY = `
     SELECT * FROM personels;
 `;
 
 export const GET_PERSONEL_BY_EMAIL = `
-    SELECT * FROM personels WHERE email = $1 LIMIT 1;
+    SELECT  
+        id,
+        first_name,
+        last_name,
+        verified,
+        birth_date,
+        email,
+        gender,
+        password
+    FROM personels 
+    WHERE email = $1 
+    LIMIT 1;
 `;
 
 export const GET_PERSONEL_BY_ID = `
