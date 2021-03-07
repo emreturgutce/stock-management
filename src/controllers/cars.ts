@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
 import { v4 as uuid } from 'uuid';
 import format from 'pg-format';
-import { AWS_S3_BUCKET, DatabaseClient, S3Client } from '../config';
+import { AWS_S3_BUCKET, DatabaseClient, RedisClient } from '../config';
 import { ForeignKeyConstaintError, UniqueKeyConstaintError } from '../errors';
 import {
 	validateCarColor,
@@ -17,11 +17,11 @@ import {
 import {
 	ADD_CARS_QUERY,
 	ADD_CAR_COLOR_QUERY,
-	ADD_CAR_IMAGE,
 	ADD_CAR_MANUFACTURER_QUERY,
 	ADD_CAR_QUERY,
+	ADD_MULTI_CAR_IMAGE,
 	DELETE_CAR_BY_ID,
-	DELETE_CAR_IMAGE,
+	DELETE_MULTI_CAR_IMAGE,
 	GET_CARS_QUERY_NEW,
 	GET_CAR_BY_ID_QUERY,
 	GET_CAR_COLORS_QUERY,
@@ -145,32 +145,30 @@ router.post(
 				car_color_code,
 			} = req.body;
 
-			const {
-				rows,
-			} = await DatabaseClient.getInstance().query(ADD_CAR_QUERY, [
-				title,
-				sale_price,
-				purchase_price,
-				is_sold,
-				description,
-				model,
-				year,
-				is_new,
-				enter_date,
-				supplier_id,
-				personel_id,
-				car_manufacturer_id,
-				car_color_code,
+			await Promise.all([
+				DatabaseClient.getInstance().query(ADD_CAR_QUERY, [
+					title,
+					sale_price,
+					purchase_price,
+					is_sold,
+					description,
+					model,
+					year,
+					is_new,
+					enter_date,
+					supplier_id,
+					personel_id,
+					car_manufacturer_id,
+					car_color_code,
+				]),
+				RedisClient.expireValue('cars'),
 			]);
 
 			res.status(201).json({
 				message: 'New car created',
 				status: 201,
-				data: rows,
 			});
 		} catch (error) {
-			await DatabaseClient.getInstance().query('ROLLBACK');
-
 			if (
 				error.message.includes(
 					'duplicate key value violates unique constraint',
@@ -210,19 +208,22 @@ router.put(
 				car_color_code,
 			} = req.body;
 
-			await DatabaseClient.getInstance().query(UPDATE_CAR_BY_ID, [
-				title,
-				description,
-				sale_price,
-				purchase_price,
-				enter_date,
-				year,
-				model,
-				is_new,
-				car_color_code,
-				car_manufacturer_id,
-				supplier_id,
-				req.params.id,
+			await Promise.all([
+				DatabaseClient.getInstance().query(UPDATE_CAR_BY_ID, [
+					title,
+					description,
+					sale_price,
+					purchase_price,
+					enter_date,
+					year,
+					model,
+					is_new,
+					car_color_code,
+					car_manufacturer_id,
+					supplier_id,
+					req.params.id,
+				]),
+				RedisClient.expireValue('cars'),
 			]);
 
 			res.status(204).send();
@@ -248,11 +249,22 @@ router.put(
 
 router.get('/', async (req, res, next) => {
 	try {
-		const { rows } = await DatabaseClient.getInstance().query(
-			GET_CARS_QUERY_NEW,
-		);
+		const carsString = await RedisClient.getValue('cars');
+		let cars: any[] = [];
 
-		res.json({ message: 'Cars fetched', status: 200, data: rows });
+		if (!carsString) {
+			const { rows } = await DatabaseClient.getInstance().query(
+				GET_CARS_QUERY_NEW,
+			);
+
+			await RedisClient.setValue('cars', JSON.stringify(rows));
+
+			cars = rows;
+		} else {
+			cars = JSON.parse(carsString) as any[];
+		}
+
+		res.json({ message: 'Cars fetched', status: 200, data: cars });
 	} catch (error) {
 		next(new createHttpError.InternalServerError('Internal Server Error'));
 	}
@@ -337,22 +349,30 @@ router.post(
 				);
 			}
 
-			for await (const file of req.files as Express.Multer.File[]) {
+			const promises: Array<Promise<any>> = [];
+			const imageURLs: Array<Array<string>> = [];
+
+			for (const file of req.files as Express.Multer.File[]) {
 				const avatarId = `${uuid()}.webp`;
 
 				const imageURL = `https://${AWS_S3_BUCKET}.s3-eu-west-1.amazonaws.com/${avatarId}`;
 
-				Promise.all([
-					uploadAvatarToS3(avatarId, file.buffer),
-					DatabaseClient.getInstance().query(ADD_CAR_IMAGE, [
-						imageURL,
-						req.params.id,
-					]),
-				]);
+				imageURLs.push([imageURL, req.params.id]);
+
+				promises.push(uploadAvatarToS3(avatarId, file.buffer));
 			}
+
+			await Promise.all([
+				...promises,
+				DatabaseClient.getInstance().query(
+					format(ADD_MULTI_CAR_IMAGE, imageURLs),
+				),
+				RedisClient.expireValue('cars'),
+			]);
 
 			res.json({ message: 'Image saved', status: 200 });
 		} catch (err) {
+			console.log(err);
 			next(new createHttpError.BadRequest('Not valid image'));
 		}
 	},
@@ -367,13 +387,18 @@ router.delete(
 			const { images }: { images: [string] } = req.body;
 
 			await Promise.all([
-				images.map((image) =>
-					DatabaseClient.getInstance().query(DELETE_CAR_IMAGE, [
+				DatabaseClient.getInstance().query(
+					format(
+						DELETE_MULTI_CAR_IMAGE,
 						req.params.id,
-						`https://${AWS_S3_BUCKET}.s3-eu-west-1.amazonaws.com/${image}`,
-					]),
+						images.map(
+							(image) =>
+								`https://${AWS_S3_BUCKET}.s3-eu-west-1.amazonaws.com/${image}`,
+						),
+					),
 				),
 				images.map((image) => deleteAvatarFromS3(image)),
+				RedisClient.expireValue('cars'),
 			]);
 
 			res.status(204).send();
@@ -402,6 +427,7 @@ router.delete(
 			await Promise.all([
 				images.map((image) => deleteAvatarFromS3(image as string)),
 				DatabaseClient.getInstance().query(DELETE_CAR_BY_ID, [id]),
+				RedisClient.expireValue('cars'),
 			]);
 
 			res.json({
@@ -429,9 +455,12 @@ router.post(
 				car.push(req.session.context.id); // Push the personel id to each car
 			}
 
-			await DatabaseClient.getInstance().query(
-				format(ADD_CARS_QUERY, cars),
-			);
+			await Promise.all([
+				DatabaseClient.getInstance().query(
+					format(ADD_CARS_QUERY, cars),
+				),
+				RedisClient.expireValue('cars'),
+			]);
 
 			res.status(201).json({
 				status: 201,
