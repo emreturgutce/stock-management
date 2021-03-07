@@ -72,3 +72,19 @@ export const UPDATE_CAR_BY_ID = `
 export const DELETE_CAR_IMAGE = `
     delete from car_images where car_id = $1 and image_url = $2;
 `;
+export const ADD_CARS_QUERY = `
+    INSERT INTO cars (
+        title,
+        description,
+        sale_price,
+        purchase_price,
+        enter_date,
+        year,
+        model,
+        is_new,
+        car_color_code,
+        car_manufacturer_id,
+        supplier_id,
+        personel_id
+    ) VALUES %L;
+`;

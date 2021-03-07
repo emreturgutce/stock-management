@@ -4,6 +4,7 @@ export * from './error-handler';
 export * from './not-found';
 export * from './rate-limiter';
 export * from './upload-avatar';
+export * from './upload-excel';
 export * from './validate-login';
 export * from './validate-uuid';
 export * from './validate-request';

@@ -32,6 +32,7 @@
         "@types/nodemailer": "^6.4.0",
         "@types/pdfkit": "^0.10.6",
         "@types/pg": "^7.14.7",
+        "@types/pg-format": "^1.0.1",
         "@types/sharp": "^0.27.1",
         "@types/supertest": "^2.0.10",
         "@types/uuid": "^8.3.0",
@@ -52,6 +53,7 @@
         "cors": "^2.8.5",
         "cross-env": "^7.0.3",
         "dotenv": "^8.2.0",
+        "exceljs": "^4.2.0",
         "express": "^4.17.1",
         "express-session": "^1.17.1",
         "express-validator": "^6.9.2",
@@ -64,6 +66,7 @@
         "nodemailer": "^6.4.18",
         "pdfkit": "^0.11.0",
         "pg": "^8.5.1",
+        "pg-format": "^1.0.4",
         "rate-limiter-flexible": "^2.1.16",
         "sharp": "^0.27.2",
         "uuid": "^8.3.2"
