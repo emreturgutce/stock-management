@@ -34,7 +34,8 @@ export const GET_PERSONEL_BY_EMAIL = `
         birth_date,
         email,
         gender,
-        password
+        password,
+        role
     FROM personels 
     WHERE email = $1 
     LIMIT 1;
@@ -73,4 +74,7 @@ export const CHECK_IF_PERSONEL_EXISTS_WITH_THE_EMAIL = `
 `;
 export const DELETE_PERSONEL_BY_ID = `
     DELETE FROM personels WHERE id = $1;
+`;
+export const ENHANCE_PERSONEL_ROLE = `
+    UPDATE personels SET role = 'ADMIN' WHERE id = $1 and role != 'ADMIN';
 `;
