@@ -116,3 +116,6 @@ export const ADD_MULTI_CAR_IMAGE = `
 export const DELETE_MULTI_CAR_IMAGE = `
     delete from car_images where car_id = %L and image_url in (%L);
 `;
+export const GET_CAR_FROM_AWATING_LIST = `
+    SELECT * FROM awating_list WHERE id = $1 JOIN actions ON actions.id = awaiting_list.action_id;
+`;
