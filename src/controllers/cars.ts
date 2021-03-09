@@ -3,7 +3,7 @@ import createHttpError from 'http-errors';
 import { v4 as uuid } from 'uuid';
 import format from 'pg-format';
 import { AWS_S3_BUCKET, DatabaseClient, RedisClient } from '../config';
-import { ForeignKeyConstaintError, UniqueKeyConstaintError } from '../errors';
+import { ForeignKeyConstraintError, UniqueKeyConstraintError } from '../errors';
 import {
 	validateCarColor,
 	validateCarManufacturer,
@@ -58,7 +58,7 @@ router.post(
 				error.message ===
 				'duplicate key value violates unique constraint "car_colors_name_key"'
 			) {
-				return next(new UniqueKeyConstaintError());
+				return next(new UniqueKeyConstraintError());
 			}
 
 			next(new createHttpError.BadRequest(error.message));
@@ -100,7 +100,7 @@ router.post(
 				error.message ===
 				'duplicate key value violates unique constraint "car_manufacturers_name_key"'
 			) {
-				return next(new UniqueKeyConstaintError());
+				return next(new UniqueKeyConstraintError());
 			}
 
 			next(new createHttpError.BadRequest(error.message));
@@ -174,11 +174,11 @@ router.post(
 					'duplicate key value violates unique constraint',
 				)
 			) {
-				return next(new UniqueKeyConstaintError());
+				return next(new UniqueKeyConstraintError());
 			} else if (
 				error.message.includes('violates foreign key constraint')
 			) {
-				return next(new ForeignKeyConstaintError());
+				return next(new ForeignKeyConstraintError());
 			} else if (error.message.includes('invalid input syntax')) {
 				return next(new createHttpError.BadRequest('Invalid input'));
 			}
@@ -233,11 +233,11 @@ router.put(
 					'duplicate key value violates unique constraint',
 				)
 			) {
-				return next(new UniqueKeyConstaintError());
+				return next(new UniqueKeyConstraintError());
 			} else if (
 				error.message.includes('violates foreign key constraint')
 			) {
-				return next(new ForeignKeyConstaintError());
+				return next(new ForeignKeyConstraintError());
 			} else if (error.message.includes('invalid input syntax')) {
 				return next(new createHttpError.BadRequest('Invalid input'));
 			}
