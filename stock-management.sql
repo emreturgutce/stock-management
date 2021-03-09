@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS car_colors (
 
 CREATE TYPE is_new_enum AS ENUM ('NEW', 'NOT NEW');
 CREATE TYPE is_sold_enum AS ENUM ('SOLD', 'NOT SOLD');
+CREATE TYPE car_state_enum AS ENUM ('WAITING', 'NONE');
 
 CREATE TABLE IF NOT EXISTS cars (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -60,6 +61,7 @@ CREATE TABLE IF NOT EXISTS cars (
     personel_id UUID NOT NULL,
     car_manufacturer_id UUID NOT NULL,
     car_color_code UUID NOT NULL,
+    state car_state_enum NOT NULL DEFAULT 'NONE',
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -104,6 +106,29 @@ ALTER TABLE sales ADD CONSTRAINT sales_customers FOREIGN KEY (customer_id) REFER
 ALTER TABLE sales ADD CONSTRAINT sales_personels FOREIGN KEY (personel_id) REFERENCES personels(id) ON DELETE CASCADE;
 ALTER TABLE sales ADD CONSTRAINT sales_cars FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE;
 ALTER TABLE sales ADD CONSTRAINT sales_invoices FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE;
+
+CREATE TYPE car_action_type_enum AS ENUM ('DELETE', 'SELL');
+
+CREATE TABLE IF NOT EXISTS actions {
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    type car_action_type_enum NOT NULL,
+    customer_first_name VARCHAR(50),
+    customer_last_name VARCHAR(50),
+    customer_birth_date DATE,
+    invoice_serial_number INT,
+    invoice_price INT
+}
+
+CREATE TABLE IF NOT EXISTS awaiting_list {
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    car_id UUID NOT NULL,
+    personel_id UUID NOT NULL,
+    action_id UUID NOT NULL
+}
+
+ALTER TABLE awaiting_list ADD CONSTRAINT awaiting_list_cars FOREIGN (car_id) REFERENCES cars(id) ON DELETE CASCADE;
+ALTER TABLE awaiting_list ADD CONSTRAINT awaiting_list_personels FOREIGN (personel_id) REFERENCES personels(id) ON DELETE CASCADE;
+ALTER TABLE awaiting_list ADD CONSTRAINT awaiting_list_actions FOREIGN (action_id) REFERENCES actions(id) ON DELETE CASCADE;
 
 /*
     Renkleri ekle
