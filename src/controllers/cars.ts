@@ -13,6 +13,7 @@ import {
 	uploadAvatars,
 	validateDeleteImages,
 	uploadExcel,
+	authAdmin,
 } from '../middlewares';
 import {
 	ADD_CARS_QUERY,
@@ -25,6 +26,7 @@ import {
 	GET_CARS_QUERY_NEW,
 	GET_CAR_BY_ID_QUERY,
 	GET_CAR_COLORS_QUERY,
+	GET_CAR_FROM_AWATING_LIST,
 	GET_CAR_IMAGES_BY_ID,
 	GET_CAR_MANUFACTURER_QUERY,
 	UPDATE_CAR_BY_ID,
@@ -439,6 +441,62 @@ router.delete(
 				new createHttpError.InternalServerError(
 					'Internal Server Error',
 				),
+			);
+		}
+	},
+);
+
+router.get(
+	'/:id/confirm-action', // awating list id
+	authAdmin,
+	validateUUID,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const {
+				rows,
+			} = await DatabaseClient.getInstance().query(
+				GET_CAR_FROM_AWATING_LIST,
+				[req.params.id],
+			);
+
+			const { type, car_id } = rows[0];
+
+			if (type === 'DELETE') {
+				const {
+					rows: rowsImage,
+				} = await DatabaseClient.getInstance().query(
+					GET_CAR_IMAGES_BY_ID,
+					[car_id],
+				);
+
+				const myRegex = /(.*\.com\/)(.*)/;
+				const images = rowsImage.map(
+					(row) => myRegex.exec(row.image_url)?.[2],
+				);
+
+				await Promise.all([
+					images.map((image) => deleteAvatarFromS3(image as string)),
+					DatabaseClient.getInstance().query(DELETE_CAR_BY_ID, [
+						car_id,
+					]),
+					RedisClient.expireValue('cars'),
+				]);
+
+				return res.json({
+					message: 'Car deleted with the given id.',
+					status: 204,
+				});
+			} else if (type === 'SELL') {
+				// TODO implement sell operation
+			}
+
+			res.status(400).json({
+				message: 'Bad request',
+				status: 400,
+			});
+		} catch (error) {
+			next(
+				new createHttpError.InternalServerError('Something went wrong'),
 			);
 		}
 	},
