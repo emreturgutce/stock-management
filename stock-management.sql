@@ -109,7 +109,7 @@ ALTER TABLE sales ADD CONSTRAINT sales_invoices FOREIGN KEY (invoice_id) REFEREN
 
 CREATE TYPE car_action_type_enum AS ENUM ('DELETE', 'SELL');
 
-CREATE TABLE IF NOT EXISTS actions {
+CREATE TABLE IF NOT EXISTS actions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     type car_action_type_enum NOT NULL,
     customer_first_name VARCHAR(50),
@@ -117,14 +117,14 @@ CREATE TABLE IF NOT EXISTS actions {
     customer_birth_date DATE,
     invoice_serial_number INT,
     invoice_price INT
-}
+);
 
-CREATE TABLE IF NOT EXISTS awaiting_list {
+CREATE TABLE IF NOT EXISTS awaiting_list (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     car_id UUID NOT NULL,
     personel_id UUID NOT NULL,
     action_id UUID NOT NULL
-}
+);
 
 ALTER TABLE awaiting_list ADD CONSTRAINT awaiting_list_cars FOREIGN (car_id) REFERENCES cars(id) ON DELETE CASCADE;
 ALTER TABLE awaiting_list ADD CONSTRAINT awaiting_list_personels FOREIGN (personel_id) REFERENCES personels(id) ON DELETE CASCADE;
