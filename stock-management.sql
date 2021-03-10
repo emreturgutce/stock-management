@@ -126,9 +126,9 @@ CREATE TABLE IF NOT EXISTS awaiting_list (
     action_id UUID NOT NULL
 );
 
-ALTER TABLE awaiting_list ADD CONSTRAINT awaiting_list_cars FOREIGN (car_id) REFERENCES cars(id) ON DELETE CASCADE;
-ALTER TABLE awaiting_list ADD CONSTRAINT awaiting_list_personels FOREIGN (personel_id) REFERENCES personels(id) ON DELETE CASCADE;
-ALTER TABLE awaiting_list ADD CONSTRAINT awaiting_list_actions FOREIGN (action_id) REFERENCES actions(id) ON DELETE CASCADE;
+ALTER TABLE awaiting_list ADD CONSTRAINT awaiting_list_cars FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE;
+ALTER TABLE awaiting_list ADD CONSTRAINT awaiting_list_personels FOREIGN KEY (personel_id) REFERENCES personels(id) ON DELETE CASCADE;
+ALTER TABLE awaiting_list ADD CONSTRAINT awaiting_list_actions FOREIGN KEY (action_id) REFERENCES actions(id) ON DELETE CASCADE;
 
 /*
     Renkleri ekle
