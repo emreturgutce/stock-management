@@ -116,7 +116,8 @@ CREATE TABLE IF NOT EXISTS actions (
     customer_last_name VARCHAR(50),
     customer_birth_date DATE,
     invoice_serial_number INT,
-    invoice_price INT
+    invoice_price INT,
+    sale_date Date
 );
 
 CREATE TABLE IF NOT EXISTS awaiting_list (
