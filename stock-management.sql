@@ -191,6 +191,9 @@ INSERT INTO suppliers (first_name, last_name) VALUES  ('Tutkum', 'Ahmadı Asl');
 INSERT INTO personels (first_name, last_name, birth_date, email, password, gender, hire_date, role)
 VALUES ('Emre', 'Turgut', '2000-06-23', 'emreturgut@mail.com', crypt('123456', gen_salt('bf', 4)), 'MALE', '2021-01-01', 'ADMIN');
 
+INSERT INTO personels (first_name, last_name, birth_date, email, password, gender, hire_date)
+VALUES ('Emre', 'Turgut', '2000-06-23', 'emreturgut1@mail.com', crypt('123456', gen_salt('bf', 4)), 'MALE', '2021-01-01');
+
 /* Araba Ekle */
 INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
 supplier_id, personel_id, car_manufacturer_id, car_color_code)
