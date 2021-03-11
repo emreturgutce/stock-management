@@ -39,6 +39,8 @@ import {
 	ADD_INVOICE_QUERY,
 	MARK_CAR_AS_SOLD_QUERY,
 	CHECK_IF_CAR_IS_IN_WAITING_STATE,
+	DELETE_EVENT_FROM_AWAITING_LIST,
+	UPDATE_CAR_STATE_TO_NONE,
 } from '../queries';
 import {
 	deleteAvatarFromS3,
@@ -473,13 +475,41 @@ router.delete(
 			res.json({
 				message:
 					'Car delete action added to awaiting list waiting for admin confirmation.',
-				status: 204,
+				status: 200,
 			});
 		} catch (error) {
 			next(
 				new createHttpError.InternalServerError(
 					'Internal Server Error',
 				),
+			);
+		}
+	},
+);
+
+router.get(
+	'/:id/abort-action', // car_id
+	authAdmin,
+	validateUUID,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const { id } = req.params;
+
+			await Promise.all([
+				DatabaseClient.getInstance().query(
+					DELETE_EVENT_FROM_AWAITING_LIST,
+					[id],
+				),
+				DatabaseClient.getInstance().query(UPDATE_CAR_STATE_TO_NONE, [
+					id,
+				]),
+				RedisClient.expireValue('value'),
+			]);
+
+			res.status(204).send();
+		} catch (error) {
+			next(
+				new createHttpError.InternalServerError('Something went wrong'),
 			);
 		}
 	},
