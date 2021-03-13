@@ -13,12 +13,15 @@ import {
 	uploadAvatars,
 	validateDeleteImages,
 	uploadExcel,
+	authAdmin,
 } from '../middlewares';
 import {
+	ADD_ACTION_TO_AWAITING_LIST,
 	ADD_CARS_QUERY,
 	ADD_CAR_COLOR_QUERY,
 	ADD_CAR_MANUFACTURER_QUERY,
 	ADD_CAR_QUERY,
+	ADD_DELETE_CAR_ACTION,
 	ADD_MULTI_CAR_IMAGE,
 	DELETE_CAR_BY_ID,
 	DELETE_MULTI_CAR_IMAGE,
@@ -27,7 +30,17 @@ import {
 	GET_CAR_COLORS_QUERY,
 	GET_CAR_IMAGES_BY_ID,
 	GET_CAR_MANUFACTURER_QUERY,
+	GET_AWAITING_LIST,
 	UPDATE_CAR_BY_ID,
+	UPDATE_CAR_STATE_TO_AWAITING,
+	GET_CAR_FROM_AWAITING_LIST,
+	ADD_CUSTOMER_QUERY,
+	ADD_SALE_QUERY,
+	ADD_INVOICE_QUERY,
+	MARK_CAR_AS_SOLD_QUERY,
+	CHECK_IF_CAR_IS_IN_WAITING_STATE,
+	DELETE_EVENT_FROM_AWAITING_LIST,
+	UPDATE_CAR_STATE_TO_NONE,
 } from '../queries';
 import {
 	deleteAvatarFromS3,
@@ -121,6 +134,18 @@ router.get('/manufacturers', async (req, res, next) => {
 		});
 	} catch (error) {
 		next(new createHttpError.InternalServerError('Internal Server Error'));
+	}
+});
+
+router.get('/awaiting-list', authAdmin, async (req, res, next) => {
+	try {
+		const { rows } = await DatabaseClient.getInstance().query(
+			GET_AWAITING_LIST,
+		);
+
+		res.status(200).json({ data: rows });
+	} catch (error) {
+		next(new createHttpError.InternalServerError('Something went wrong'));
 	}
 });
 
@@ -413,32 +438,172 @@ router.delete(
 	validateUUID,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const { id } = req.params;
+			const { id: carId } = req.params;
+			const { id: personelId } = req.session.context;
 
 			const {
 				rows,
-			} = await DatabaseClient.getInstance().query(GET_CAR_IMAGES_BY_ID, [
-				id,
-			]);
+			} = await DatabaseClient.getInstance().query(
+				CHECK_IF_CAR_IS_IN_WAITING_STATE,
+				[carId],
+			);
 
-			const myRegex = /(.*\.com\/)(.*)/;
-			const images = rows.map((row) => myRegex.exec(row.image_url)?.[2]);
+			if (rows.length > 0) {
+				return next(
+					new createHttpError.BadRequest(
+						'Car is already in waiting state',
+					),
+				);
+			}
+
+			const {
+				rows: [{ id: actionId }],
+			} = await DatabaseClient.getInstance().query(ADD_DELETE_CAR_ACTION);
 
 			await Promise.all([
-				images.map((image) => deleteAvatarFromS3(image as string)),
-				DatabaseClient.getInstance().query(DELETE_CAR_BY_ID, [id]),
+				DatabaseClient.getInstance().query(
+					ADD_ACTION_TO_AWAITING_LIST,
+					[carId, personelId, actionId],
+				),
+				DatabaseClient.getInstance().query(
+					UPDATE_CAR_STATE_TO_AWAITING,
+					[carId],
+				),
 				RedisClient.expireValue('cars'),
 			]);
 
 			res.json({
-				message: 'Car deleted with the given id.',
-				status: 204,
+				message:
+					'Car delete action added to awaiting list waiting for admin confirmation.',
+				status: 200,
 			});
 		} catch (error) {
 			next(
 				new createHttpError.InternalServerError(
 					'Internal Server Error',
 				),
+			);
+		}
+	},
+);
+
+router.get(
+	'/:id/abort-action', // car_id
+	authAdmin,
+	validateUUID,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const { id } = req.params;
+
+			await Promise.all([
+				DatabaseClient.getInstance().query(
+					DELETE_EVENT_FROM_AWAITING_LIST,
+					[id],
+				),
+				DatabaseClient.getInstance().query(UPDATE_CAR_STATE_TO_NONE, [
+					id,
+				]),
+				RedisClient.expireValue('value'),
+			]);
+
+			res.status(204).send();
+		} catch (error) {
+			next(
+				new createHttpError.InternalServerError('Something went wrong'),
+			);
+		}
+	},
+);
+
+router.get(
+	'/:id/confirm-action', // awating list id
+	authAdmin,
+	validateUUID,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const {
+				rows,
+			} = await DatabaseClient.getInstance().query(
+				GET_CAR_FROM_AWAITING_LIST,
+				[req.params.id],
+			);
+
+			const { type, car_id, personel_id } = rows[0];
+
+			if (type === 'DELETE') {
+				const {
+					rows: rowsImage,
+				} = await DatabaseClient.getInstance().query(
+					GET_CAR_IMAGES_BY_ID,
+					[car_id],
+				);
+
+				const myRegex = /(.*\.com\/)(.*)/;
+				const images = rowsImage.map(
+					(row) => myRegex.exec(row.image_url)?.[2],
+				);
+
+				await Promise.all([
+					images.map((image) => deleteAvatarFromS3(image as string)),
+					DatabaseClient.getInstance().query(DELETE_CAR_BY_ID, [
+						car_id,
+					]),
+					RedisClient.expireValue('cars'),
+				]);
+
+				return res.json({
+					message: 'Car deleted with the given id.',
+					status: 204,
+				});
+			} else if (type === 'SELL') {
+				const {
+					customer_first_name,
+					customer_last_name,
+					customer_birth_date,
+					invoice_serial_number,
+					invoice_price,
+					sale_date,
+				} = rows[0];
+
+				const [customerRes, invoiceRes] = await Promise.all([
+					DatabaseClient.getInstance().query(ADD_CUSTOMER_QUERY, [
+						customer_first_name,
+						customer_last_name,
+						customer_birth_date,
+					]),
+					DatabaseClient.getInstance().query(ADD_INVOICE_QUERY, [
+						invoice_serial_number,
+						invoice_price,
+					]),
+				]);
+
+				const [saleRes] = await Promise.all([
+					DatabaseClient.getInstance().query(ADD_SALE_QUERY, [
+						customerRes.rows[0].id,
+						personel_id,
+						car_id,
+						invoiceRes.rows[0].id,
+						sale_date,
+					]),
+					DatabaseClient.getInstance().query(MARK_CAR_AS_SOLD_QUERY, [
+						car_id,
+					]),
+				]);
+
+				return res.json({
+					message: 'Car sell operation confirmed successfully',
+					status: 200,
+					data: saleRes.rows[0],
+				});
+			}
+
+			res.status(400).json({
+				message: 'Bad request',
+				status: 400,
+			});
+		} catch (error) {
+			next(
+				new createHttpError.InternalServerError('Something went wrong'),
 			);
 		}
 	},

@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
-import { DatabaseClient } from '../config';
+import { DatabaseClient, RedisClient } from '../config';
 import { validateSale, validateUUID } from '../middlewares';
 import {
 	ADD_INVOICE_QUERY,
@@ -16,6 +16,10 @@ import {
 	GET_FULL_SALE_INFO,
 	GET_LAST_FIVE_SALES,
 	GET_TOTAL_REVENUE,
+	ADD_ACTION_TO_AWAITING_LIST,
+	UPDATE_CAR_STATE_TO_AWAITING,
+	ADD_SELL_CAR_ACTION,
+	CHECK_IF_CAR_IS_IN_WAITING_STATE,
 } from '../queries';
 import { createInvoicePdf } from '../utils';
 
@@ -264,41 +268,49 @@ router.post(
 				sale_date,
 			} = req.body;
 
-			const [_, customerRes, invoiceRes] = await Promise.all([
-				DatabaseClient.getInstance().query('BEGIN'),
-				DatabaseClient.getInstance().query(ADD_CUSTOMER_QUERY, [
-					first_name,
-					last_name,
-					birth_date,
-				]),
-				DatabaseClient.getInstance().query(ADD_INVOICE_QUERY, [
-					serial_number,
-					price,
-				]),
+			const {
+				rows,
+			} = await DatabaseClient.getInstance().query(
+				CHECK_IF_CAR_IS_IN_WAITING_STATE,
+				[car_id],
+			);
+
+			if (rows.length > 0) {
+				return next(
+					new createHttpError.BadRequest(
+						'Car is already in waiting state',
+					),
+				);
+			}
+
+			const {
+				rows: [{ id: actionId }],
+			} = await DatabaseClient.getInstance().query(ADD_SELL_CAR_ACTION, [
+				first_name,
+				last_name,
+				birth_date,
+				serial_number,
+				price,
+				sale_date,
 			]);
 
-			const [saleRes, __, ___] = await Promise.all([
-				DatabaseClient.getInstance().query(ADD_SALE_QUERY, [
-					customerRes.rows[0].id,
-					personel_id,
-					car_id,
-					invoiceRes.rows[0].id,
-					sale_date,
-				]),
-				DatabaseClient.getInstance().query(MARK_CAR_AS_SOLD_QUERY, [
-					car_id,
-				]),
-				DatabaseClient.getInstance().query('COMMIT'),
+			await Promise.all([
+				DatabaseClient.getInstance().query(
+					ADD_ACTION_TO_AWAITING_LIST,
+					[car_id, personel_id, actionId],
+				),
+				DatabaseClient.getInstance().query(
+					UPDATE_CAR_STATE_TO_AWAITING,
+					[car_id],
+				),
+				RedisClient.expireValue('cars'),
 			]);
 
 			res.status(201).json({
-				message: 'New sale created',
+				message: 'New sale action added to awaiting list.',
 				status: 201,
-				data: saleRes.rows,
 			});
 		} catch (err) {
-			console.log(err);
-			await DatabaseClient.getInstance().query('ROLLBACK');
 			next(
 				new createHttpError.BadRequest(
 					'Invalid values to create a sale',

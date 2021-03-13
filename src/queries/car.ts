@@ -51,6 +51,7 @@ export const GET_CARS_QUERY_NEW = `
         cars.car_manufacturer_id,
         cars.supplier_id,
         cars.personel_id AS id,
+        cars.state,
         car_colors.name AS car_color, 
         car_manufacturers.name AS car_brand,
         personels.first_name,
@@ -115,4 +116,47 @@ export const ADD_MULTI_CAR_IMAGE = `
 `;
 export const DELETE_MULTI_CAR_IMAGE = `
     delete from car_images where car_id = %L and image_url in (%L);
+`;
+export const GET_CAR_FROM_AWAITING_LIST = `
+    SELECT * FROM awaiting_list JOIN actions ON actions.id = action_id WHERE awaiting_list.id = $1;
+`;
+export const ADD_DELETE_CAR_ACTION = `
+    INSERT INTO actions (type) VALUES ('DELETE') RETURNING id;
+`;
+export const ADD_SELL_CAR_ACTION = `
+    INSERT INTO actions (
+        type,
+        customer_first_name,
+        customer_last_name,
+        customer_birth_date,
+        invoice_serial_number,
+        invoice_price,
+        sale_date
+    ) VALUES ('SELL', $1, $2, $3, $4, $5, $6) RETURNING id;
+`;
+export const ADD_ACTION_TO_AWAITING_LIST = `
+    INSERT INTO awaiting_list (car_id, personel_id, action_id) 
+    VALUES ($1, $2, $3);
+`;
+export const UPDATE_CAR_STATE_TO_AWAITING = `
+    UPDATE cars SET state = 'WAITING' WHERE id = $1;
+`;
+export const GET_AWAITING_LIST = `
+    SELECT awaiting_list.id AS awaiting_list_id, * 
+    FROM awaiting_list 
+    JOIN actions 
+    ON actions.id = awaiting_list.action_id
+    JOIN personels
+    ON personels.id = awaiting_list.personel_id
+    JOIN cars
+    ON cars.id = awaiting_list.car_id;
+`;
+export const CHECK_IF_CAR_IS_IN_WAITING_STATE = `
+    SELECT 1 FROM cars WHERE id = $1 AND state = 'WAITING';
+`;
+export const DELETE_EVENT_FROM_AWAITING_LIST = `
+    DELETE FROM awaiting_list WHERE car_id = $1;
+`;
+export const UPDATE_CAR_STATE_TO_NONE = `
+    UPDATE cars SET state = 'NONE' where id = $1;
 `;
