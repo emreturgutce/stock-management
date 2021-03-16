@@ -588,6 +588,12 @@ router.get(
 					DatabaseClient.getInstance().query(MARK_CAR_AS_SOLD_QUERY, [
 						car_id,
 					]),
+					DatabaseClient.getInstance().query(
+						DELETE_EVENT_FROM_AWAITING_LIST,
+						[car_id],
+					),
+					DatabaseClient.getInstance().query(UPDATE_CAR_STATE_TO_NONE, [car_id]),
+					RedisClient.expireValue('cars'),
 				]);
 
 				return res.json({
