@@ -5,6 +5,7 @@ import {
     POSTGRES_HOST,
     POSTGRES_PORT,
     POSTGRES_DB,
+    NODE_ENV,
 } from '.';
 
 class DatabaseClient {
@@ -18,6 +19,7 @@ class DatabaseClient {
                 database: POSTGRES_DB,
                 password: POSTGRES_PASSWORD,
                 port: parseInt(POSTGRES_PORT, 10),
+                ssl: NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
             });
 
             DatabaseClient.pool.once('connect', () => {
