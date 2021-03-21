@@ -41,6 +41,7 @@ import {
 	CHECK_IF_CAR_IS_IN_WAITING_STATE,
 	DELETE_EVENT_FROM_AWAITING_LIST,
 	UPDATE_CAR_STATE_TO_NONE,
+	GET_COMPLETED_EVENTS,
 } from '../queries';
 import {
 	deleteAvatarFromS3,
@@ -141,6 +142,18 @@ router.get('/awaiting-list', authAdmin, async (req, res, next) => {
 	try {
 		const { rows } = await DatabaseClient.getInstance().query(
 			GET_AWAITING_LIST,
+		);
+
+		res.status(200).json({ data: rows });
+	} catch (error) {
+		next(new createHttpError.InternalServerError('Something went wrong'));
+	}
+});
+
+router.get('/completed-events', authAdmin, async (req, res, next) => {
+	try {
+		const { rows } = await DatabaseClient.getInstance().query(
+			GET_COMPLETED_EVENTS,
 		);
 
 		res.status(200).json({ data: rows });
@@ -549,6 +562,10 @@ router.get(
 						car_id,
 					]),
 					RedisClient.expireValue('cars'),
+					DatabaseClient.getInstance().query(
+						DELETE_EVENT_FROM_AWAITING_LIST,
+						[car_id],
+					),
 				]);
 
 				return res.json({
@@ -592,8 +609,15 @@ router.get(
 						DELETE_EVENT_FROM_AWAITING_LIST,
 						[car_id],
 					),
-					DatabaseClient.getInstance().query(UPDATE_CAR_STATE_TO_NONE, [car_id]),
+					DatabaseClient.getInstance().query(
+						UPDATE_CAR_STATE_TO_NONE,
+						[car_id],
+					),
 					RedisClient.expireValue('cars'),
+					DatabaseClient.getInstance().query(
+						DELETE_EVENT_FROM_AWAITING_LIST,
+						[car_id],
+					),
 				]);
 
 				return res.json({
