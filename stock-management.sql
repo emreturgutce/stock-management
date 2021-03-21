@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS cars (
     model VARCHAR(50) NOT NULL,
     year INT NOT NULL,
     is_new is_new_enum NOT NULL DEFAULT 'NEW',
+    is_deleted BOOLEAN NOT NULL DEFAULT false,
     enter_date DATE NOT NULL,
     supplier_id UUID NOT NULL,
     personel_id UUID NOT NULL,
@@ -124,7 +125,8 @@ CREATE TABLE IF NOT EXISTS awaiting_list (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     car_id UUID NOT NULL,
     personel_id UUID NOT NULL,
-    action_id UUID NOT NULL
+    action_id UUID NOT NULL,
+    is_fulfiled BOOLEAN NOT NULL DEFAULT false
 );
 
 ALTER TABLE awaiting_list ADD CONSTRAINT awaiting_list_cars FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE;
