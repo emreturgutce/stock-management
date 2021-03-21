@@ -22,7 +22,7 @@ export const ADD_ADMIN_PERSONEL_QUERY = `
     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;
 `;
 export const GET_PERSONELS_QUERY = `
-    SELECT * FROM personels;
+    SELECT * FROM personels WHERE id != $1;
 `;
 
 export const GET_PERSONEL_BY_EMAIL = `
@@ -77,4 +77,7 @@ export const DELETE_PERSONEL_BY_ID = `
 `;
 export const ENHANCE_PERSONEL_ROLE = `
     UPDATE personels SET role = 'ADMIN' WHERE id = $1 and role != 'ADMIN';
+`;
+export const DROP_PERSONEL_ROLE = `
+    UPDATE personels SET role = 'PERSONEL' WHERE id = $1 and role != 'PERSONEL';
 `;
