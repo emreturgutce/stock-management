@@ -14,6 +14,7 @@ import {
 	CHANGE_PASSWORD,
 	CHECK_IF_PERSONEL_EXISTS_WITH_THE_EMAIL,
 	DELETE_PERSONEL_BY_ID,
+	DROP_PERSONEL_ROLE,
 	ENHANCE_PERSONEL_ROLE,
 	GET_PERSONELS_QUERY,
 	GET_PERSONEL_BY_EMAIL,
@@ -111,6 +112,7 @@ router.get('/', authAdmin, async (req, res, next) => {
 	try {
 		const { rows } = await DatabaseClient.getInstance().query(
 			GET_PERSONELS_QUERY,
+			[req.session.context.id],
 		);
 
 		res.json({
@@ -416,6 +418,30 @@ router.get(
 		try {
 			const result = await DatabaseClient.getInstance().query(
 				ENHANCE_PERSONEL_ROLE,
+				[req.params.id],
+			);
+			
+			if (result.rowCount > 0) {
+				return res.status(204).send();
+			}
+
+			res.status(304).send();
+		} catch (error) {
+			next(
+				new createHttpError.InternalServerError('Something went wrong'),
+			);
+		}
+	},
+);
+
+router.get(
+	'/:id/role-drop',
+	authAdmin,
+	validateUUID,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const result = await DatabaseClient.getInstance().query(
+				DROP_PERSONEL_ROLE,
 				[req.params.id],
 			);
 			
