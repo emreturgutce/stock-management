@@ -56,7 +56,8 @@ export const GET_CARS_QUERY_NEW = `
         car_manufacturers.name AS car_brand,
         personels.first_name,
         personels.last_name,
-        car_images.image_urls
+        car_images.image_urls,
+        cars.is_deleted
     FROM cars
         LEFT JOIN (
             SELECT car_id, string_agg(image_url, ';') AS image_urls 
@@ -68,7 +69,8 @@ export const GET_CARS_QUERY_NEW = `
         JOIN car_manufacturers
         ON car_manufacturers.id = cars.car_manufacturer_id
         JOIN personels
-        ON cars.personel_id = personels.id;
+        ON cars.personel_id = personels.id
+    WHERE is_deleted = false;
 `;
 export const GET_CAR_BY_ID_QUERY = `
     SELECT * FROM cars WHERE id = $1
@@ -77,7 +79,7 @@ export const MARK_CAR_AS_SOLD_QUERY = `
     UPDATE cars SET is_sold = 'SOLD' WHERE id = $1;
 `;
 export const DELETE_CAR_BY_ID = `
-    DELETE FROM cars WHERE id = $1;
+    UPDATE cars SET is_deleted = true WHERE id = $1;
 `;
 export const ADD_CAR_IMAGE = `
     INSERT INTO car_images (image_url, car_id) VALUES ($1, $2);
@@ -149,13 +151,25 @@ export const GET_AWAITING_LIST = `
     JOIN personels
     ON personels.id = awaiting_list.personel_id
     JOIN cars
-    ON cars.id = awaiting_list.car_id;
+    ON cars.id = awaiting_list.car_id
+    WHERE is_fulfiled = false;
+`;
+export const GET_COMPLETED_EVENTS = `
+    SELECT awaiting_list.id AS awaiting_list_id, * 
+    FROM awaiting_list 
+    JOIN actions 
+    ON actions.id = awaiting_list.action_id
+    JOIN personels
+    ON personels.id = awaiting_list.personel_id
+    JOIN cars
+    ON cars.id = awaiting_list.car_id
+    WHERE is_fulfiled = true;
 `;
 export const CHECK_IF_CAR_IS_IN_WAITING_STATE = `
     SELECT 1 FROM cars WHERE id = $1 AND state = 'WAITING';
 `;
 export const DELETE_EVENT_FROM_AWAITING_LIST = `
-    DELETE FROM awaiting_list WHERE car_id = $1;
+    UPDATE awaiting_list SET is_fulfiled = true WHERE car_id = $1;
 `;
 export const UPDATE_CAR_STATE_TO_NONE = `
     UPDATE cars SET state = 'NONE' where id = $1;
