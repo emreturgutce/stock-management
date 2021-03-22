@@ -4,13 +4,10 @@ import { DatabaseClient, RedisClient } from '../config';
 import { validateSale, validateUUID } from '../middlewares';
 import {
 	ADD_INVOICE_QUERY,
-	ADD_SALE_QUERY,
 	GET_INVOICES_QUERY,
 	GET_INVOICE_BY_ID_QUERY,
 	GET_SALES_QUERY,
 	GET_SALE_BY_ID_QUERY,
-	ADD_CUSTOMER_QUERY,
-	MARK_CAR_AS_SOLD_QUERY,
 	GET_SALES_BETWEEN_TWO_DATES,
 	GET_TOTAL_PROFIT,
 	GET_FULL_SALE_INFO,
@@ -20,6 +17,8 @@ import {
 	UPDATE_CAR_STATE_TO_AWAITING,
 	ADD_SELL_CAR_ACTION,
 	CHECK_IF_CAR_IS_IN_WAITING_STATE,
+	GET_SALES_MONTH_BY_MONTH,
+	GET_WORTH_MONTH_BY_MONTH,
 } from '../queries';
 import { createInvoicePdf } from '../utils';
 
@@ -178,6 +177,38 @@ router.get('/latest', async (req, res, next) => {
 		});
 	} catch (error) {
 		next(new createHttpError.InternalServerError('Internal Server Error'));
+	}
+});
+
+router.get('/monthly-total-sale-price', async (req, res, next) => {
+	try {
+		const { rows } = await DatabaseClient.getInstance().query(
+			GET_SALES_MONTH_BY_MONTH,
+		);
+
+		res.json({
+			message: 'Month by month sales fetched',
+			data: rows,
+			status: 200
+		});
+	} catch (error) {
+		next(new createHttpError.InternalServerError('Something went wrong'));
+	}
+});
+
+router.get('/monthly-total-worth', async (req, res, next) => {
+	try {
+		const { rows } = await DatabaseClient.getInstance().query(
+			GET_WORTH_MONTH_BY_MONTH,
+		);
+
+		res.json({
+			message: 'Month by month worths fetched',
+			data: rows,
+			status: 200
+		});
+	} catch (error) {
+		next(new createHttpError.InternalServerError('Something went wrong'));
 	}
 });
 
