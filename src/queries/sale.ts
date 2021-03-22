@@ -91,7 +91,8 @@ export const GET_SALES_MONTH_BY_MONTH = `
     FROM sales
     JOIN invoices
     ON invoices.id = sales.invoice_id
-    GROUP BY DATE_TRUNC('month', sale_date);
+    GROUP BY DATE_TRUNC('month', sale_date)
+    ORDER BY sale_date;
 `;
 export const GET_WORTH_MONTH_BY_MONTH = `
     SELECT
@@ -103,5 +104,6 @@ export const GET_WORTH_MONTH_BY_MONTH = `
     ON invoices.id = sales.invoice_id
     JOIN cars
     ON cars.id = sales.car_id
-    GROUP BY DATE_TRUNC('month', sale_date);
+    GROUP BY DATE_TRUNC('month', sale_date)
+    ORDER BY sale_date;
 `;
