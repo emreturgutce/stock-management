@@ -11,7 +11,9 @@ CREATE TABLE IF NOT EXISTS suppliers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
-    birth_date DATE
+    birth_date DATE,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE TYPE role_enum AS ENUM ('PERSONEL', 'ADMIN');
@@ -34,12 +36,16 @@ CREATE TABLE IF NOT EXISTS personels (
 
 CREATE TABLE IF NOT EXISTS car_manufacturers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name VARCHAR(100) NOT NULL UNIQUE
+    name VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS car_colors (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name VARCHAR(100) NOT NULL UNIQUE
+    name VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE TYPE is_new_enum AS ENUM ('NEW', 'NOT NEW');
@@ -76,7 +82,9 @@ ALTER TABLE cars ADD CONSTRAINT cars_car_colors FOREIGN KEY (car_color_code) REF
 CREATE TABLE IF NOT EXISTS car_images (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     image_url TEXT NOT NULL UNIQUE,
-    car_id UUID NOT NULL
+    car_id UUID NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE car_images ADD CONSTRAINT car_images_cars FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE;
@@ -85,13 +93,17 @@ CREATE TABLE IF NOT EXISTS customers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
-    birth_date DATE
+    birth_date DATE,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS invoices (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     serial_number INT NOT NULL UNIQUE,
-    price INT NOT NULL
+    price INT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS sales (
@@ -100,7 +112,9 @@ CREATE TABLE IF NOT EXISTS sales (
     personel_id UUID NOT NULL,
     car_id UUID NOT NULL,
     invoice_id UUID NOT NULL,
-    sale_date DATE NOT NULL
+    sale_date DATE NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE sales ADD CONSTRAINT sales_customers FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE;
@@ -118,7 +132,9 @@ CREATE TABLE IF NOT EXISTS actions (
     customer_birth_date DATE,
     invoice_serial_number INT,
     invoice_price INT,
-    sale_date Date
+    sale_date Date,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS awaiting_list (
@@ -126,7 +142,9 @@ CREATE TABLE IF NOT EXISTS awaiting_list (
     car_id UUID NOT NULL,
     personel_id UUID NOT NULL,
     action_id UUID NOT NULL,
-    is_fulfiled BOOLEAN NOT NULL DEFAULT false
+    is_fulfiled BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE awaiting_list ADD CONSTRAINT awaiting_list_cars FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE;
