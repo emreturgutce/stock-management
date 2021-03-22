@@ -6,6 +6,7 @@ import {
 	ADD_CUSTOMER_QUERY,
 	GET_CUSTOMERS_QUERY,
 	GET_CUSTOMER_COUNT,
+	GET_MONTHLY_TOTAL_CUSTOMERS,
 } from '../queries';
 
 const router = Router();
@@ -67,5 +68,22 @@ router.get('/count', async (req, res, next) => {
 		next(new createHttpError.InternalServerError('Internal Server Error'));
 	}
 });
+
+router.get('/monthly-total-customers', async (req, res, next) => {
+	try {
+		const { rows } = await DatabaseClient.getInstance().query(
+			GET_MONTHLY_TOTAL_CUSTOMERS,
+		);
+
+		res.json({
+			message: 'Month by month customer count fetched',
+			status: 200,
+			data: rows,
+		});
+		
+	} catch (error) {
+		next(new createHttpError.InternalServerError('Internal Server Error'));
+	}
+})
 
 export { router as customerRouter };
