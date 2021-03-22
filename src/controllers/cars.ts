@@ -42,6 +42,7 @@ import {
 	DELETE_EVENT_FROM_AWAITING_LIST,
 	UPDATE_CAR_STATE_TO_NONE,
 	GET_COMPLETED_EVENTS,
+	ABORT_EVENT,
 } from '../queries';
 import {
 	deleteAvatarFromS3,
@@ -510,13 +511,13 @@ router.get(
 
 			await Promise.all([
 				DatabaseClient.getInstance().query(
-					DELETE_EVENT_FROM_AWAITING_LIST,
+					ABORT_EVENT,
 					[id],
 				),
 				DatabaseClient.getInstance().query(UPDATE_CAR_STATE_TO_NONE, [
 					id,
 				]),
-				RedisClient.expireValue('value'),
+				RedisClient.expireValue('cars'),
 			]);
 
 			res.status(204).send();
@@ -614,10 +615,6 @@ router.get(
 						[car_id],
 					),
 					RedisClient.expireValue('cars'),
-					DatabaseClient.getInstance().query(
-						DELETE_EVENT_FROM_AWAITING_LIST,
-						[car_id],
-					),
 				]);
 
 				return res.json({

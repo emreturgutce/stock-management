@@ -152,7 +152,8 @@ export const GET_AWAITING_LIST = `
     ON personels.id = awaiting_list.personel_id
     JOIN cars
     ON cars.id = awaiting_list.car_id
-    WHERE is_fulfiled = false;
+    WHERE is_fulfiled = false
+    ORDER BY actions.created_at;
 `;
 export const GET_COMPLETED_EVENTS = `
     SELECT awaiting_list.id AS awaiting_list_id, * 
@@ -163,7 +164,8 @@ export const GET_COMPLETED_EVENTS = `
     ON personels.id = awaiting_list.personel_id
     JOIN cars
     ON cars.id = awaiting_list.car_id
-    WHERE is_fulfiled = true;
+    WHERE is_fulfiled = true
+    ORDER BY actions.created_at DESC;
 `;
 export const CHECK_IF_CAR_IS_IN_WAITING_STATE = `
     SELECT 1 FROM cars WHERE id = $1 AND state = 'WAITING';
@@ -173,4 +175,7 @@ export const DELETE_EVENT_FROM_AWAITING_LIST = `
 `;
 export const UPDATE_CAR_STATE_TO_NONE = `
     UPDATE cars SET state = 'NONE' where id = $1;
+`;
+export const ABORT_EVENT = `
+    UPDATE awaiting_list SET is_fulfiled = true, is_aborted = true WHERE car_id = $1;
 `;

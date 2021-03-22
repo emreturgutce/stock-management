@@ -143,6 +143,7 @@ CREATE TABLE IF NOT EXISTS awaiting_list (
     personel_id UUID NOT NULL,
     action_id UUID NOT NULL,
     is_fulfiled BOOLEAN NOT NULL DEFAULT false,
+    is_aborted BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
