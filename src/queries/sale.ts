@@ -83,3 +83,25 @@ export const GET_LAST_FIVE_SALES = `
     order by sale_date desc
     limit 5;
 `;
+export const GET_SALES_MONTH_BY_MONTH = `
+    SELECT
+       DATE_TRUNC('month', sale_date) AS  sale_date,
+       count(*) as count,
+       sum(price)
+    FROM sales
+    JOIN invoices
+    ON invoices.id = sales.invoice_id
+    GROUP BY DATE_TRUNC('month', sale_date);
+`;
+export const GET_WORTH_MONTH_BY_MONTH = `
+    SELECT
+       DATE_TRUNC('month', sale_date) AS  sale_date,
+       count(*) as count,
+       sum(price) - sum(cars.purchase_price) AS worth
+    FROM sales
+    JOIN invoices
+    ON invoices.id = sales.invoice_id
+    JOIN cars
+    ON cars.id = sales.car_id
+    GROUP BY DATE_TRUNC('month', sale_date);
+`;
