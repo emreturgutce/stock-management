@@ -219,12 +219,8 @@ VALUES ('Emre', 'Turgut', '2000-06-23', 'emreturgut1@mail.com', crypt('123456', 
 INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
 supplier_id, personel_id, car_manufacturer_id, car_color_code)
 VALUES ('2020 Toyota Yaris Yeni 1.5 Dream e-CVT', 299200, 270000, 
-'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the 
-industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and 
-scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap 
-into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the 
-release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing 
-software like Aldus PageMaker including versions of Lorem Ipsum.', 'Yaris',
+'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 
+'Yaris',
 2020, '2021-01-01', 
 (SELECT id AS supplier_id FROM suppliers LIMIT 1), 
 (SELECT id AS personel_id FROM personels LIMIT 1), 
@@ -234,12 +230,8 @@ software like Aldus PageMaker including versions of Lorem Ipsum.', 'Yaris',
 INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
 supplier_id, personel_id, car_manufacturer_id, car_color_code)
 VALUES ('2020 BMW 1 Serisi 1.5 116d', 414200, 400000, 
-'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the 
-industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and 
-scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap 
-into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the 
-release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing 
-software like Aldus PageMaker including versions of Lorem Ipsum.', '1 Serisi',
+'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 
+'1 Serisi',
 2020, '2021-01-01', 
 (SELECT id AS supplier_id FROM suppliers LIMIT 1), 
 (SELECT id AS personel_id FROM personels LIMIT 1), 
@@ -249,12 +241,8 @@ software like Aldus PageMaker including versions of Lorem Ipsum.', '1 Serisi',
 INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
 supplier_id, personel_id, car_manufacturer_id, car_color_code)
 VALUES ('2020 Suzuki Swift 1.2 Hibrit GL Techno CVT', 216900, 200000, 
-'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the 
-industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and 
-scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap 
-into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the 
-release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing 
-software like Aldus PageMaker including versions of Lorem Ipsum.', 'Swift',
+'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 
+'Swift',
 2020, '2021-01-01', 
 (SELECT id AS supplier_id FROM suppliers LIMIT 1), 
 (SELECT id AS personel_id FROM personels LIMIT 1), 
@@ -264,12 +252,8 @@ software like Aldus PageMaker including versions of Lorem Ipsum.', 'Swift',
 INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
 supplier_id, personel_id, car_manufacturer_id, car_color_code)
 VALUES ('2020 Volvo S90 2.0 D5 Inscription Plus', 938350, 920000, 
-'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the 
-industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and 
-scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap 
-into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the 
-release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing 
-software like Aldus PageMaker including versions of Lorem Ipsum.', 'S90',
+'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 
+'S90',
 2020, '2021-01-01', 
 (SELECT id AS supplier_id FROM suppliers LIMIT 1), 
 (SELECT id AS personel_id FROM personels LIMIT 1), 
@@ -279,12 +263,8 @@ software like Aldus PageMaker including versions of Lorem Ipsum.', 'S90',
 INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
 supplier_id, personel_id, car_manufacturer_id, car_color_code)
 VALUES ('2020 Mercedes A Serisi A180 1.4 Style', 386000, 370000, 
-'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the 
-industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and 
-scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap 
-into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the 
-release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing 
-software like Aldus PageMaker including versions of Lorem Ipsum.', 'A Serisi',
+'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 
+'A Serisi',
 2020, '2021-01-01', 
 (SELECT id AS supplier_id FROM suppliers LIMIT 1), 
 (SELECT id AS personel_id FROM personels LIMIT 1), 
@@ -294,12 +274,8 @@ software like Aldus PageMaker including versions of Lorem Ipsum.', 'A Serisi',
 INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
 supplier_id, personel_id, car_manufacturer_id, car_color_code)
 VALUES ('2020 Peugeot 208 1.5 BlueHDi Signature', 192500, 180000, 
-'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the 
-industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and 
-scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap 
-into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the 
-release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing 
-software like Aldus PageMaker including versions of Lorem Ipsum.', '208',
+'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 
+'208',
 2020, '2021-01-01', 
 (SELECT id AS supplier_id FROM suppliers LIMIT 1), 
 (SELECT id AS personel_id FROM personels LIMIT 1), 
@@ -309,12 +285,8 @@ software like Aldus PageMaker including versions of Lorem Ipsum.', '208',
 INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
 supplier_id, personel_id, car_manufacturer_id, car_color_code)
 VALUES ('2020 Ford Fiesta 1.0 Style AT', 203400, 194000, 
-'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the 
-industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and 
-scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap 
-into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the 
-release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing 
-software like Aldus PageMaker including versions of Lorem Ipsum.', 'Fiesta',
+'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 
+'Fiesta',
 2020, '2021-01-01', 
 (SELECT id AS supplier_id FROM suppliers LIMIT 1), 
 (SELECT id AS personel_id FROM personels LIMIT 1), 
@@ -324,12 +296,8 @@ software like Aldus PageMaker including versions of Lorem Ipsum.', 'Fiesta',
 INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
 supplier_id, personel_id, car_manufacturer_id, car_color_code)
 VALUES ('2020 Jeep Renegade 1.0 Sport', 284450, 270000, 
-'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the 
-industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and 
-scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap 
-into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the 
-release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing 
-software like Aldus PageMaker including versions of Lorem Ipsum.', 'Renegade',
+'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 
+'Renegade',
 2020, '2021-01-01', 
 (SELECT id AS supplier_id FROM suppliers LIMIT 1), 
 (SELECT id AS personel_id FROM personels LIMIT 1), 

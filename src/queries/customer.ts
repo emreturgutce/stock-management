@@ -18,5 +18,6 @@ export const GET_MONTHLY_TOTAL_CUSTOMERS = `
        DATE_TRUNC('month', created_at) AS  created_at,
        count(*) as count
     FROM customers
-    GROUP BY DATE_TRUNC('month', created_at);
+    GROUP BY DATE_TRUNC('month', created_at)
+    ORDER BY created_at;
 `;
