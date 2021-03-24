@@ -5,6 +5,7 @@ declare module 'express-session' {
 			email: string;
 			verified: boolean;
 			role: 'PERSONEL' | 'ADMIN';
+			lastLogin: number;
 		};
 	}
 }

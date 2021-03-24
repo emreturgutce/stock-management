@@ -38,5 +38,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
 		);
 	}
 
+	req.session.context.lastLogin = Date.now();
+
 	next();
 };

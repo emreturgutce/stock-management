@@ -74,6 +74,7 @@ router.post(
 				verified: rows[0].verified,
 				email: rows[0].email,
 				role: rows[0].role,
+				lastLogin: Date.now(),
 			};
 
 			delete rows[0].password;
@@ -108,12 +109,56 @@ router.get('/logout', auth, async (req, res, next) => {
 	}
 });
 
+router.get(
+	'/expire-session/:id', // id of the user
+	validateUUID,
+	authAdmin,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const deletedSessionNumber = await RedisClient.deleteAllSessionOfAUser(
+				req.params.id,
+			);
+
+			res.json({
+				message: 'All session of the user has been deleted',
+				status: 200,
+				data: {
+					deletedSessionNumber,
+				},
+			});
+		} catch (error) {
+			next(
+				new createHttpError.InternalServerError('Something went wrong'),
+			);
+		}
+	},
+);
+
 router.get('/', authAdmin, async (req, res, next) => {
 	try {
-		const { rows } = await DatabaseClient.getInstance().query(
-			GET_PERSONELS_QUERY,
-			[req.session.context.id],
+		const {
+			rows,
+		} = await DatabaseClient.getInstance().query(GET_PERSONELS_QUERY, [
+			req.session.context.id,
+		]);
+
+		const lastLogins = await RedisClient.getLastLoginFromSession(
+			rows.map((row) => row.id),
 		);
+
+		for (let i = 0; i < rows.length; i++) {
+			for (const lastLogin of lastLogins) {
+				if (rows[i].id === lastLogin.id) {
+					if (rows[i].lastLogin) {
+						rows[i].lastLogin =
+							lastLogin.lastLogin > rows[i].lastLogin &&
+							lastLogin.lastLogin;
+					} else {
+						rows[i].lastLogin = lastLogin.lastLogin;
+					}
+				}
+			}
+		}
 
 		res.json({
 			message: 'Personels fetched',
@@ -132,6 +177,8 @@ router.get('/current', auth, async (req, res, next) => {
 		} = await DatabaseClient.getInstance().query(GET_PERSONEL_BY_ID, [
 			req.session.context.id,
 		]);
+
+		rows[0].lastLogin = req.session.context.lastLogin;
 
 		res.json({
 			message: 'Personel fetched with the given id',
@@ -420,7 +467,7 @@ router.get(
 				ENHANCE_PERSONEL_ROLE,
 				[req.params.id],
 			);
-			
+
 			if (result.rowCount > 0) {
 				return res.status(204).send();
 			}
@@ -444,7 +491,7 @@ router.get(
 				DROP_PERSONEL_ROLE,
 				[req.params.id],
 			);
-			
+
 			if (result.rowCount > 0) {
 				return res.status(204).send();
 			}

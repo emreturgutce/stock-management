@@ -1,5 +1,6 @@
 import Redis, { Redis as RedisType } from 'ioredis';
 import { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } from '.';
+import { SESSION_PREFIX } from '../constants';
 
 class RedisClient {
 	private static client: RedisType;
@@ -47,7 +48,98 @@ class RedisClient {
 	}
 
 	static expireValue(key: string) {
-		return RedisClient.client.del(key)
+		return RedisClient.client.del(key);
+	}
+
+	static deleteAllSessionOfAUser(id: string): Promise<number> {
+		return new Promise((resolve, reject) => {
+			const stream = RedisClient.client.scanStream({
+				match: `${SESSION_PREFIX}*`,
+			});
+			const pipeline = RedisClient.client.pipeline();
+			const delPipeline = RedisClient.client.pipeline();
+			let sessionCount = 0;
+
+			stream.on('data', (keys: Array<string>) => {
+				for (const key of keys) {
+					pipeline.get(key, (err, res) => {
+						if (err) {
+							return reject(err);
+						}
+
+						const sessionObj = JSON.parse(res);
+
+						if (sessionObj.context.id === id) {
+							sessionCount++;
+							delPipeline.del(key);
+						}
+					});
+				}
+			});
+
+			stream.on('end', async () => {
+				await pipeline.exec(async (err) => {
+					if (err) {
+						return reject(err);
+					}
+
+					await delPipeline.exec((err) => {
+						if (err) {
+							return reject(err);
+						}
+					});
+				});
+
+				return resolve(sessionCount);
+			});
+
+			stream.on('error', reject);
+		});
+	}
+
+	static getLastLoginFromSession(
+		ids: Array<string>,
+	): Promise<Array<{ id: string; lastLogin: number }>> {
+		return new Promise((resolve, reject) => {
+			const stream = RedisClient.client.scanStream({
+				match: `${SESSION_PREFIX}*`,
+			});
+			const pipeline = RedisClient.client.pipeline();
+			const lastLogins: Array<{ id: string; lastLogin: number }> = [];
+
+			stream.on('data', (keys: Array<string>) => {
+				for (const key of keys) {
+					pipeline.get(key, (err, res) => {
+						if (err) {
+							return reject(err);
+						}
+
+						const {
+							context: { id, lastLogin },
+						} = JSON.parse(res);
+
+						if (ids.includes(id)) {
+							lastLogins.push({
+								lastLogin,
+								id,
+							});
+						}
+					});
+				}
+			});
+
+			stream.on('end', async () => {
+				await pipeline.exec(async (err) => {
+					if (err) {
+						return reject(err);
+					}
+				});
+
+				return resolve(lastLogins);
+			});
+
+			stream.on('error', reject);
+		});
 	}
 }
 
