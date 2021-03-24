@@ -40,7 +40,7 @@ class RedisClient {
 	}
 
 	static setValue(key: string, value: string) {
-		return RedisClient.client.setex(key, 60, value);
+		return RedisClient.client.setex(key, 60 * 60 * 24 * 7, value);
 	}
 
 	static getValue(key: string) {
