@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
+import geoip from 'geoip-lite';
 import { validate } from 'uuid';
-import { DatabaseClient } from '../config';
+import { DatabaseClient, RedisClient } from '../config';
+import { LAST_LOGIN_PREFIX } from '../constants';
 import { CHECK_IF_PERSONEL_EXISTS_WITH_THE_ID } from '../queries';
 
 export const auth = async (req: Request, res: Response, next: NextFunction) => {
@@ -38,7 +40,18 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
 		);
 	}
 
-	req.session.context.lastLogin = Date.now();
+	const lastLogin = Date.now();
+
+	req.session.context.lastLogin = lastLogin;
+
+	await RedisClient.addToSet(
+		`${LAST_LOGIN_PREFIX}${req.session.context.id}`,
+		JSON.stringify({
+			geo: geoip.lookup(req.ip),
+			ip: req.ip,
+			lastLogin,
+		}),
+	);
 
 	next();
 };

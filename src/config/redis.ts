@@ -51,6 +51,20 @@ class RedisClient {
 		return RedisClient.client.del(key);
 	}
 
+	static async addToSet(key: string, value: any) {
+		const setLength = await RedisClient.client.scard(key);
+
+		if (setLength > 5) {
+			await RedisClient.client.spop(key);
+		}
+
+		return RedisClient.client.sadd(key, value);
+	}
+
+	static getFromSet(key: string) {
+		return RedisClient.client.smembers(key);
+	}
+
 	static deleteAllSessionOfAUser(id: string): Promise<number> {
 		return new Promise((resolve, reject) => {
 			const stream = RedisClient.client.scanStream({

@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
 import bcrypt from 'bcryptjs';
 import { v4 as uuid } from 'uuid';
+import geoip from 'geoip-lite';
 import {
 	DatabaseClient,
 	cookieOptions,
@@ -37,6 +38,7 @@ import {
 	CONFIRM_USER_PREFIX,
 	COOKIE_NAME,
 	FORGOT_PASSWORD_PREFIX,
+	LAST_LOGIN_PREFIX,
 } from '../constants';
 import {
 	sendEmail,
@@ -69,15 +71,26 @@ router.post(
 				);
 			}
 
+			const lastLogin = Date.now();
+
 			req.session.context = {
 				id: rows[0].id,
 				verified: rows[0].verified,
 				email: rows[0].email,
 				role: rows[0].role,
-				lastLogin: Date.now(),
+				lastLogin,
 			};
 
 			delete rows[0].password;
+
+			await RedisClient.addToSet(
+				`${LAST_LOGIN_PREFIX}${rows[0].id}`,
+				JSON.stringify({
+					geo: geoip.lookup(req.ip),
+					ip: req.ip,
+					lastLogin,
+				}),
+			);
 
 			res.json({ data: rows, message: 'Logged in', status: 200 });
 		} catch (err) {
@@ -142,22 +155,12 @@ router.get('/', authAdmin, async (req, res, next) => {
 			req.session.context.id,
 		]);
 
-		const lastLogins = await RedisClient.getLastLoginFromSession(
-			rows.map((row) => row.id),
-		);
-
 		for (let i = 0; i < rows.length; i++) {
-			for (const lastLogin of lastLogins) {
-				if (rows[i].id === lastLogin.id) {
-					if (rows[i].lastLogin) {
-						rows[i].lastLogin =
-							lastLogin.lastLogin > rows[i].lastLogin &&
-							lastLogin.lastLogin;
-					} else {
-						rows[i].lastLogin = lastLogin.lastLogin;
-					}
-				}
-			}
+			rows[i].lastLogins = (
+				await RedisClient.getFromSet(
+					`${LAST_LOGIN_PREFIX}${rows[i].id}`,
+				)
+			).map((lastLogin) => JSON.parse(lastLogin));
 		}
 
 		res.json({
@@ -178,7 +181,11 @@ router.get('/current', auth, async (req, res, next) => {
 			req.session.context.id,
 		]);
 
-		rows[0].lastLogin = req.session.context.lastLogin;
+		rows[0].lastLogins = (
+			await RedisClient.getFromSet(
+				`${LAST_LOGIN_PREFIX}${req.session.context.id}`,
+			)
+		).map((lastLogin) => JSON.parse(lastLogin));
 
 		res.json({
 			message: 'Personel fetched with the given id',

@@ -6,3 +6,4 @@ export const RATE_LIMIT_PREFIX = 'ratelimit';
 export const CONFIRM_USER_PREFIX = 'user-confirmation:';
 export const SESSION_PREFIX = `stock-management-session:`;
 export const FORGOT_PASSWORD_PREFIX = `forgot-password:`;
+export const LAST_LOGIN_PREFIX = 'stock-management-login:'
