@@ -51,18 +51,36 @@ class RedisClient {
 		return RedisClient.client.del(key);
 	}
 
-	static async addToSet(key: string, value: any) {
-		const setLength = await RedisClient.client.scard(key);
+	static async addToSet(
+		key: string,
+		value: any,
+		sessionId: string,
+	): Promise<void> {
+		const len = await RedisClient.client.llen(key);
 
-		if (setLength > 5) {
-			await RedisClient.client.spop(key);
+		const records = await RedisClient.client.lrange(key, 0, len);
+
+		let idx = 0;
+
+		for (const record of records) {
+			const obj = JSON.parse(record);
+
+			if (obj.sessionId === sessionId) {
+				break;
+			}
+
+			idx++;
 		}
 
-		return RedisClient.client.sadd(key, value);
+		if (idx !== records.length) {
+			await RedisClient.client.lset(key, idx, value);
+		} else {
+			await RedisClient.client.lpush(key, value);
+		}
 	}
 
 	static getFromSet(key: string) {
-		return RedisClient.client.smembers(key);
+		return RedisClient.client.lrange(key, 0, 5);
 	}
 
 	static deleteAllSessionOfAUser(id: string): Promise<number> {

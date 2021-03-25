@@ -89,8 +89,16 @@ router.post(
 					geo: geoip.lookup(req.ip),
 					ip: req.ip,
 					lastLogin,
+					sessionId: req.sessionID,
 				}),
+				req.sessionID,
 			);
+
+			rows[0].lastLogins = (
+				await RedisClient.getFromSet(
+					`${LAST_LOGIN_PREFIX}${rows[0].id}`,
+				)
+			).map((lastLogin) => JSON.parse(lastLogin));
 
 			res.json({ data: rows, message: 'Logged in', status: 200 });
 		} catch (err) {

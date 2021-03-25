@@ -50,7 +50,9 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
 			geo: geoip.lookup(req.ip),
 			ip: req.ip,
 			lastLogin,
+			sessionId: req.sessionID,
 		}),
+		req.sessionID
 	);
 
 	next();
