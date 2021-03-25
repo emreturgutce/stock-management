@@ -90,7 +90,7 @@ router.post(
 					ip: req.ip,
 					lastLogin,
 					sessionId: req.sessionID,
-					agent: req.headers['user-agent'],
+					agent: req.headers['User-Agent'],
 				}),
 				req.sessionID,
 			);
