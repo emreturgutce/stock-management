@@ -51,7 +51,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
 			ip: req.ip,
 			lastLogin,
 			sessionId: req.sessionID,
-			agent: req.headers['User-Agent'],
+			agent: req.headers['user-agent'],
 		}),
 		req.sessionID
 	);
