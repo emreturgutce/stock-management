@@ -155,23 +155,23 @@ ALTER TABLE awaiting_list ADD CONSTRAINT awaiting_list_actions FOREIGN KEY (acti
 /*
     Renkleri ekle
 */
-INSERT INTO car_colors (name) VALUES ('Bej');
-INSERT INTO car_colors (name) VALUES ('Beyaz');
-INSERT INTO car_colors (name) VALUES ('Bordo');
-INSERT INTO car_colors (name) VALUES ('Füme');
-INSERT INTO car_colors (name) VALUES ('Gri');
-INSERT INTO car_colors (name) VALUES ('Gümüş Gri');
-INSERT INTO car_colors (name) VALUES ('Kırmızı');
-INSERT INTO car_colors (name) VALUES ('Mor');
-INSERT INTO car_colors (name) VALUES ('Lacivert');
-INSERT INTO car_colors (name) VALUES ('Mavi');
-INSERT INTO car_colors (name) VALUES ('Pembe');
-INSERT INTO car_colors (name) VALUES ('Sarı');
-INSERT INTO car_colors (name) VALUES ('Siyah');
-INSERT INTO car_colors (name) VALUES ('Şampanya');
-INSERT INTO car_colors (name) VALUES ('Turkuaz');
-INSERT INTO car_colors (name) VALUES ('Turuncu');
-INSERT INTO car_colors (name) VALUES ('Yeşil');
+INSERT INTO car_colors (name) VALUES ('bej');
+INSERT INTO car_colors (name) VALUES ('beyaz');
+INSERT INTO car_colors (name) VALUES ('bordo');
+INSERT INTO car_colors (name) VALUES ('füme');
+INSERT INTO car_colors (name) VALUES ('gri');
+INSERT INTO car_colors (name) VALUES ('gümüş Gri');
+INSERT INTO car_colors (name) VALUES ('kırmızı');
+INSERT INTO car_colors (name) VALUES ('mor');
+INSERT INTO car_colors (name) VALUES ('lacivert');
+INSERT INTO car_colors (name) VALUES ('mavi');
+INSERT INTO car_colors (name) VALUES ('pembe');
+INSERT INTO car_colors (name) VALUES ('sarı');
+INSERT INTO car_colors (name) VALUES ('siyah');
+INSERT INTO car_colors (name) VALUES ('şampanya');
+INSERT INTO car_colors (name) VALUES ('turkuaz');
+INSERT INTO car_colors (name) VALUES ('turuncu');
+INSERT INTO car_colors (name) VALUES ('yeşil');
 
 /* Üretici Ekle */
 INSERT INTO car_manufacturers (name) VALUES ('Volkswagen');

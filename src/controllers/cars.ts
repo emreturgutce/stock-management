@@ -60,7 +60,7 @@ router.post(
 			const {
 				rows,
 			} = await DatabaseClient.getInstance().query(ADD_CAR_COLOR_QUERY, [
-				req.body.name,
+				req.body.name.toLowerCase(),
 			]);
 
 			res.status(201).json({
