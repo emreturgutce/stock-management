@@ -132,6 +132,42 @@ router.get('/logout', auth, async (req, res, next) => {
 });
 
 router.get(
+	'/expire-session/current',
+	auth,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const deletedSessionNumber = await RedisClient.deleteAllSessionOfAUser(
+				req.session.context.id,
+			);
+
+			req.session.destroy((err: any) => {
+				if (err)
+					return next(
+						new createHttpError.InternalServerError(
+						'Could not logged out',
+					),
+				);
+			});
+
+			res.clearCookie(COOKIE_NAME, cookieOptions);
+
+
+			res.json({
+				message: 'All session of the current user has been deleted',
+				status: 200,
+				data: {
+					deletedSessionNumber,
+				},
+			});
+		} catch (error) {
+			next(
+				new createHttpError.InternalServerError('Something went wrong'),
+			);
+		}
+	},
+);
+
+router.get(
 	'/expire-session/:id', // id of the user
 	validateUUID,
 	authAdmin,
@@ -140,6 +176,8 @@ router.get(
 			const deletedSessionNumber = await RedisClient.deleteAllSessionOfAUser(
 				req.params.id,
 			);
+
+
 
 			res.json({
 				message: 'All session of the user has been deleted',
