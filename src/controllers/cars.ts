@@ -102,7 +102,7 @@ router.post(
 				rows,
 			} = await DatabaseClient.getInstance().query(
 				ADD_CAR_MANUFACTURER_QUERY,
-				[req.body.name],
+				[req.body.name.toLowerCase()],
 			);
 
 			res.status(201).json({

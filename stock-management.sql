@@ -174,27 +174,27 @@ INSERT INTO car_colors (name) VALUES ('turuncu');
 INSERT INTO car_colors (name) VALUES ('yeşil');
 
 /* Üretici Ekle */
-INSERT INTO car_manufacturers (name) VALUES ('Volkswagen');
-INSERT INTO car_manufacturers (name) VALUES ('Maruti Suzuki');
-INSERT INTO car_manufacturers (name) VALUES ('Tesla');
-INSERT INTO car_manufacturers (name) VALUES ('AUDİ');
-INSERT INTO car_manufacturers (name) VALUES ('Nissan');
-INSERT INTO car_manufacturers (name) VALUES ('Honda');
-INSERT INTO car_manufacturers (name) VALUES ('Ford');
-INSERT INTO car_manufacturers (name) VALUES ('BMW');
-INSERT INTO car_manufacturers (name) VALUES ('Mercedes Benz');
-INSERT INTO car_manufacturers (name) VALUES ('Toyota');
-INSERT INTO car_manufacturers (name) VALUES ('Volvo');
-INSERT INTO car_manufacturers (name) VALUES ('Peugeot');
-INSERT INTO car_manufacturers (name) VALUES ('Skoda');
-INSERT INTO car_manufacturers (name) VALUES ('Renault');
-INSERT INTO car_manufacturers (name) VALUES ('Fiat');
-INSERT INTO car_manufacturers (name) VALUES ('Citroen');
-INSERT INTO car_manufacturers (name) VALUES ('Hyundai');
-INSERT INTO car_manufacturers (name) VALUES ('Jeep');
-INSERT INTO car_manufacturers (name) VALUES ('Mini');
-INSERT INTO car_manufacturers (name) VALUES ('Opel');
-INSERT INTO car_manufacturers (name) VALUES ('Dacia');
+INSERT INTO car_manufacturers (name) VALUES ('volkswagen');
+INSERT INTO car_manufacturers (name) VALUES ('maruti suzuki');
+INSERT INTO car_manufacturers (name) VALUES ('tesla');
+INSERT INTO car_manufacturers (name) VALUES ('audi');
+INSERT INTO car_manufacturers (name) VALUES ('nissan');
+INSERT INTO car_manufacturers (name) VALUES ('honda');
+INSERT INTO car_manufacturers (name) VALUES ('ford');
+INSERT INTO car_manufacturers (name) VALUES ('bmw');
+INSERT INTO car_manufacturers (name) VALUES ('mercedes benz');
+INSERT INTO car_manufacturers (name) VALUES ('toyota');
+INSERT INTO car_manufacturers (name) VALUES ('volvo');
+INSERT INTO car_manufacturers (name) VALUES ('peugeot');
+INSERT INTO car_manufacturers (name) VALUES ('skoda');
+INSERT INTO car_manufacturers (name) VALUES ('renault');
+INSERT INTO car_manufacturers (name) VALUES ('fiat');
+INSERT INTO car_manufacturers (name) VALUES ('citroen');
+INSERT INTO car_manufacturers (name) VALUES ('hyundai');
+INSERT INTO car_manufacturers (name) VALUES ('jeep');
+INSERT INTO car_manufacturers (name) VALUES ('mini');
+INSERT INTO car_manufacturers (name) VALUES ('opel');
+INSERT INTO car_manufacturers (name) VALUES ('dacia');
 
 /* Tedarikçi Ekle */
 INSERT INTO suppliers (first_name, last_name) VALUES  ('Delal Abdullatif', 'Abzak');
@@ -224,7 +224,7 @@ VALUES ('2020 Toyota Yaris Yeni 1.5 Dream e-CVT', 299200, 270000,
 2020, '2021-01-01', 
 (SELECT id AS supplier_id FROM suppliers LIMIT 1), 
 (SELECT id AS personel_id FROM personels LIMIT 1), 
-(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'Toyota'), 
+(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'toyota'), 
 (SELECT id AS car_color_code FROM car_colors WHERE name = 'beyaz'));
 
 INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
@@ -235,7 +235,7 @@ VALUES ('2020 BMW 1 Serisi 1.5 116d', 414200, 400000,
 2020, '2021-01-01', 
 (SELECT id AS supplier_id FROM suppliers LIMIT 1), 
 (SELECT id AS personel_id FROM personels LIMIT 1), 
-(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'BMW'), 
+(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'bmw'), 
 (SELECT id AS car_color_code FROM car_colors WHERE name = 'mavi'));
 
 INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
@@ -246,7 +246,7 @@ VALUES ('2020 Suzuki Swift 1.2 Hibrit GL Techno CVT', 216900, 200000,
 2020, '2021-01-01', 
 (SELECT id AS supplier_id FROM suppliers LIMIT 1), 
 (SELECT id AS personel_id FROM personels LIMIT 1), 
-(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'Maruti Suzuki'), 
+(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'maruti suzuki'), 
 (SELECT id AS car_color_code FROM car_colors WHERE name = 'kırmızı'));
 
 INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
@@ -257,7 +257,7 @@ VALUES ('2020 Volvo S90 2.0 D5 Inscription Plus', 938350, 920000,
 2020, '2021-01-01', 
 (SELECT id AS supplier_id FROM suppliers LIMIT 1), 
 (SELECT id AS personel_id FROM personels LIMIT 1), 
-(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'Volvo'), 
+(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'volvo'), 
 (SELECT id AS car_color_code FROM car_colors WHERE name = 'gümüş gri'));
 
 INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
@@ -268,7 +268,7 @@ VALUES ('2020 Mercedes A Serisi A180 1.4 Style', 386000, 370000,
 2020, '2021-01-01', 
 (SELECT id AS supplier_id FROM suppliers LIMIT 1), 
 (SELECT id AS personel_id FROM personels LIMIT 1), 
-(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'Mercedes Benz'), 
+(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'mercedes benz'), 
 (SELECT id AS car_color_code FROM car_colors WHERE name = 'gümüş gri'));
 
 INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
@@ -279,7 +279,7 @@ VALUES ('2020 Peugeot 208 1.5 BlueHDi Signature', 192500, 180000,
 2020, '2021-01-01', 
 (SELECT id AS supplier_id FROM suppliers LIMIT 1), 
 (SELECT id AS personel_id FROM personels LIMIT 1), 
-(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'Peugeot'), 
+(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'peugeot'), 
 (SELECT id AS car_color_code FROM car_colors WHERE name = 'kırmızı'));
 
 INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
@@ -290,7 +290,7 @@ VALUES ('2020 Ford Fiesta 1.0 Style AT', 203400, 194000,
 2020, '2021-01-01', 
 (SELECT id AS supplier_id FROM suppliers LIMIT 1), 
 (SELECT id AS personel_id FROM personels LIMIT 1), 
-(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'Ford'), 
+(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'ford'), 
 (SELECT id AS car_color_code FROM car_colors WHERE name = 'kırmızı'));
 
 INSERT INTO cars (title, sale_price, purchase_price, description, model, year, enter_date, 
@@ -301,5 +301,5 @@ VALUES ('2020 Jeep Renegade 1.0 Sport', 284450, 270000,
 2020, '2021-01-01', 
 (SELECT id AS supplier_id FROM suppliers LIMIT 1), 
 (SELECT id AS personel_id FROM personels LIMIT 1), 
-(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'Jeep'), 
+(SELECT id AS car_manufacturer_id FROM car_manufacturers WHERE name = 'jeep'), 
 (SELECT id AS car_color_code FROM car_colors WHERE name = 'mavi'));
