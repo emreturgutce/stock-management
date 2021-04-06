@@ -32,16 +32,22 @@ if you want to check out client repository you can access it [here](https://gith
     <img src="photos/homepage.png" />
 </p>
 
-#### Unsold Car Detail
+#### Car Detail
 
 <p align="center">
-    <img src="photos/unsold-car-detail.png" />
+    <img src="photos/car-detail.png" />
 </p>
 
-#### Sold Car Detail
+#### Personnel
 
 <p align="center">
-    <img src="photos/sold-car-detail.png" />
+    <img src="photos/personel.png" />
+</p>
+
+#### Events
+
+<p align="center">
+    <img src="photos/events.png" />
 </p>
 
 #### Car Add
