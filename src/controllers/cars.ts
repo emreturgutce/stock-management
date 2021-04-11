@@ -643,6 +643,10 @@ router.post(
 		try {
 			const cars = await readCarRecordsFromExcel(req.file); // Read excel document to js array
 
+			if (cars.length === 0) {
+				return next(new createHttpError.BadRequest("Could not read the excel file please make sure it is in the correct format"));
+			}
+
 			for (const car of cars) {
 				car.push(req.session.context.id); // Push the personel id to each car
 			}
