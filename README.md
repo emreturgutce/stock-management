@@ -83,6 +83,10 @@ if you want to check out client repository you can access it [here](https://gith
 ```
 
 ```bash
+    cd stock-management && cp .env.example .env.local
+```
+
+```bash
     docker-compose up
 ```
 
